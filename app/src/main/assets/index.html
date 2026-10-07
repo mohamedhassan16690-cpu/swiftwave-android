@@ -1,0 +1,1793 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Swift Wave — Web App Mock</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --teal:#12CFAE; --teal-d:#0FB396; --blue:#1F7FE3; --violet:#8A8FF2; --sky:#41C3EE;
+  --grad:linear-gradient(135deg,#1F7FE3 0%,#22C4D8 60%,#2DDCC0 100%);
+  --bg:#F2F6FA; --surface:#FFFFFF; --surface-2:#F6F9FC; --text:#14213A; --muted:#66748B;
+  --border:#E1E8F0; --danger:#E5484D; --ok:#12B886; --tint:#E6FBF7;
+  --shadow:0 8px 28px rgba(20,33,58,.08);
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme:dark){ :root:not([data-theme="light"]){
+  --bg:#0D1524; --surface:#152036; --surface-2:#1B2840; --text:#E8EEF8; --muted:#94A3BB;
+  --border:#26354F; --tint:#123A3A; --shadow:0 8px 28px rgba(0,0,0,.35);
+}}
+:root[data-theme="dark"]{
+  --bg:#0D1524; --surface:#152036; --surface-2:#1B2840; --text:#E8EEF8; --muted:#94A3BB;
+  --border:#26354F; --tint:#123A3A; --shadow:0 8px 28px rgba(0,0,0,.35);
+}
+html{scroll-padding-top:env(safe-area-inset-top,0px);height:100%}
+*,*::before,*::after{box-sizing:inherit}
+body{margin:0;min-height:100%;background:var(--bg);color:var(--text);
+  font-family:'Poppins',system-ui,-apple-system,'Segoe UI',Roboto,Arial,sans-serif;font-size:15px;line-height:1.5}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
+svg.i{width:1em;height:1em;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.hidden{display:none!important}
+.muted{color:var(--muted)}
+.small{font-size:13px}
+
+/* ---------- Logo ---------- */
+.logo{display:inline-flex;align-items:center;gap:8px;font-weight:500;letter-spacing:-.5px;font-size:26px}
+.logo svg{width:36px;height:30px}
+.logo.sm{font-size:20px}.logo.sm svg{width:28px;height:24px}
+.logo.light{color:#fff}
+
+/* ---------- Buttons & fields ---------- */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:0;border-radius:10px;
+  padding:13px 20px;font-weight:600;font-size:15px;transition:background .15s,opacity .15s}
+.btn.primary{background:var(--teal);color:#fff;width:100%}
+.btn.primary:hover{background:var(--teal-d)}
+.btn.primary:disabled{opacity:.45;cursor:not-allowed}
+.btn.ghost{background:transparent;color:var(--text);width:100%}
+.btn.outline{background:transparent;border:1.5px solid var(--border);color:var(--text)}
+.btn.sm{padding:7px 14px;font-size:13px;width:auto}
+.link{background:none;border:0;padding:0;color:var(--teal-d);font-weight:600}
+.field{margin-bottom:16px}
+.field label{display:block;font-size:13px;font-weight:500;margin-bottom:6px}
+.input{width:100%;border:1.5px solid var(--border);background:var(--surface);border-radius:10px;padding:12px 14px;outline:none}
+.input:focus{border-color:var(--teal)}
+.input-wrap{position:relative;display:flex;align-items:center}
+.input-wrap > svg.i{position:absolute;left:14px;color:var(--muted)}
+.input-wrap .input{padding-left:40px}
+.input-wrap .eye{position:absolute;right:10px;background:none;border:0;color:var(--muted);padding:6px;display:flex}
+.field-foot{display:flex;justify-content:flex-end;margin-top:6px;font-size:12px}
+.err{color:var(--danger);font-size:12.5px;margin-top:6px;min-height:0}
+select.input{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2366748B' stroke-width='2'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;background-size:18px;padding-right:38px}
+
+/* ---------- Auth shell ---------- */
+.auth{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,1fr);min-height:100vh;min-height:100dvh}
+.hero{position:relative;overflow:hidden;background:var(--grad);color:#fff;padding:48px 56px;display:flex;flex-direction:column;justify-content:space-between}
+.hero .blob{position:absolute;border-radius:50%;opacity:.35}
+.hero h1{font-size:clamp(32px,3.6vw,48px);line-height:1.12;font-weight:600;letter-spacing:-1px;margin:0 0 16px;max-width:12ch}
+.hero p{max-width:42ch;opacity:.92;margin:0}
+.chips{display:flex;gap:8px;margin-top:28px;flex-wrap:wrap}
+.chip{border:1px solid rgba(255,255,255,.55);border-radius:999px;padding:5px 14px;font-size:13px;background:rgba(255,255,255,.12)}
+.hero-foot{font-size:12.5px;opacity:.8;position:relative}
+.panel{display:flex;align-items:center;justify-content:center;padding:32px 24px;position:relative}
+.panel-top{position:absolute;top:20px;left:24px;right:24px;display:flex;justify-content:space-between;align-items:center}
+.lang{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--border);background:var(--surface);border-radius:8px;padding:5px 10px;font-size:13px}
+.card{width:100%;max-width:440px;background:var(--surface);border-radius:20px;box-shadow:var(--shadow);padding:36px 32px}
+.card h2{font-size:24px;margin:0 0 6px;font-weight:600;letter-spacing:-.3px}
+.card .lead{color:var(--muted);margin:0 0 24px;font-size:14px}
+.back{display:inline-flex;align-items:center;gap:4px;background:none;border:0;color:var(--muted);padding:0;margin-bottom:18px;font-size:14px}
+.center{text-align:center}
+.foot-line{text-align:center;margin-top:18px;font-size:14px;color:var(--muted)}
+.phone-row{display:grid;grid-template-columns:120px 1fr;gap:10px}
+
+/* code boxes */
+.code{display:flex;gap:8px;justify-content:center;margin:20px 0 16px}
+.code input{width:46px;height:52px;text-align:center;font-size:20px;font-weight:600;border:1.5px solid var(--border);border-radius:10px;background:var(--surface-2);outline:none}
+.code input:focus{border-color:var(--teal);background:var(--surface)}
+.badge-ic{width:64px;height:64px;border-radius:50%;display:grid;place-items:center;margin:0 auto 14px;background:linear-gradient(135deg,#22C4D8,#1F7FE3);color:#fff;font-size:28px}
+
+/* registration type */
+.opt{display:flex;align-items:center;gap:14px;width:100%;text-align:left;background:var(--surface);border:1.5px solid var(--border);border-radius:14px;padding:14px 16px;margin-bottom:12px;transition:border-color .15s}
+.opt:hover{border-color:var(--teal)}
+.opt.sel{border-color:var(--teal);background:var(--tint)}
+.opt .oi{width:42px;height:42px;border-radius:12px;display:grid;place-items:center;font-size:20px;flex:none}
+.opt .ot{flex:1;min-width:0}
+.opt .ot b{display:block;font-weight:600;font-size:15px}
+.opt .ot span{font-size:12.5px;color:var(--muted)}
+.opt .chev{color:var(--muted)}
+
+/* docs */
+.doc-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.doc-btn{display:flex;flex-direction:column;align-items:center;gap:6px;padding:14px 8px;border-radius:12px;border:1.5px dashed #7FE3D3;background:var(--tint);color:var(--teal-d);font-size:12.5px;font-weight:500}
+.doc-btn svg.i{font-size:22px}
+.doc-done{display:flex;align-items:center;gap:10px;padding:12px 14px;border-radius:12px;background:var(--tint);border:1.5px solid var(--teal);font-size:13px}
+.doc-done .nm{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.doc-done .ok{color:var(--teal-d)}
+
+/* consent */
+.consent-list{list-style:none;padding:0;margin:14px 0 18px}
+.consent-list li{display:flex;gap:10px;align-items:center;padding:7px 0;font-size:14px}
+.consent-list svg.i{color:var(--teal-d)}
+.note{background:var(--surface-2);border-radius:10px;padding:12px 14px;font-size:12.5px;color:var(--muted);margin-bottom:20px}
+
+/* selfie */
+.oval{width:220px;height:280px;border-radius:50%;margin:8px auto 18px;position:relative;overflow:hidden;background:#FAD7C3;border:5px solid #C9D3DF;transition:border-color .4s}
+.oval.ready{border-color:var(--blue)}
+.oval svg{width:100%;height:100%}
+.scanline{position:absolute;left:0;right:0;height:3px;background:rgba(31,127,227,.7);box-shadow:0 0 12px rgba(31,127,227,.8);animation:scan 1.4s ease-in-out infinite alternate}
+@keyframes scan{from{top:8%}to{top:88%}}
+@media (prefers-reduced-motion:reduce){.scanline{animation:none;top:50%}}
+.tip{display:flex;gap:10px;align-items:center;justify-content:center;font-size:13px;color:var(--muted)}
+.selfie-rect{width:220px;height:280px;border-radius:50%;overflow:hidden;margin:0 auto 18px;background:#FAD7C3;border:5px solid var(--blue)}
+.selfie-rect img,.selfie-rect svg{width:100%;height:100%;object-fit:cover;display:block}
+.oval video{width:100%;height:100%;object-fit:cover;transform:scaleX(-1);display:block}
+.oval .cam-ph{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;color:var(--muted);font-size:13px;background:var(--surface-2)}
+.oval .cam-ph svg.i{font-size:40px}
+.oval{background:var(--surface-2)}
+
+/* ---------- App shell ---------- */
+.app{display:grid;grid-template-columns:248px minmax(0,1fr);min-height:100vh;min-height:100dvh}
+.side{background:var(--surface);border-right:1px solid var(--border);padding:24px 16px;display:flex;flex-direction:column;gap:6px;position:sticky;top:0;height:100vh}
+.side .logo{margin:0 8px 24px}
+.nav-btn{display:flex;align-items:center;gap:12px;background:none;border:0;border-radius:10px;padding:11px 12px;text-align:left;color:var(--muted);font-weight:500;width:100%}
+.nav-btn svg.i{font-size:19px}
+.nav-btn:hover{background:var(--surface-2);color:var(--text)}
+.nav-btn.act{background:var(--tint);color:var(--teal-d)}
+.side .sp{flex:1}
+.main{min-width:0;display:flex;flex-direction:column}
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:18px 32px;border-bottom:1px solid var(--border);background:var(--surface);position:sticky;top:0;z-index:5}
+.who{display:flex;align-items:center;gap:12px}
+.avatar{width:42px;height:42px;border-radius:50%;background:linear-gradient(135deg,#1F7FE3,#2DDCC0);color:#fff;display:grid;place-items:center;font-weight:600;border:2px solid var(--surface);box-shadow:0 0 0 2px var(--teal)}
+.who small{display:block;color:var(--muted);font-size:12px;line-height:1.2}
+.who b{font-weight:600}
+.icon-btn{position:relative;background:var(--surface-2);border:0;border-radius:10px;width:40px;height:40px;display:grid;place-items:center;font-size:19px;color:var(--text)}
+.notif-wrap{position:relative}
+.nbadge{position:absolute;top:-5px;right:-5px;min-width:19px;height:19px;border-radius:10px;background:var(--danger);color:#fff;font-size:11px;font-weight:600;display:grid;place-items:center;padding:0 5px;border:2px solid var(--surface)}
+.npanel{position:absolute;right:0;top:50px;width:370px;max-width:calc(100vw - 32px);background:var(--surface);border:1px solid var(--border);border-radius:14px;box-shadow:0 16px 40px rgba(20,33,58,.18);z-index:20;overflow:hidden}
+.npanel .nh{display:flex;justify-content:space-between;align-items:center;padding:14px 16px;border-bottom:1px solid var(--border)}
+.npanel .nh b{font-weight:600}
+.nlist{max-height:400px;overflow-y:auto}
+.nitem{display:flex;gap:12px;width:100%;text-align:left;background:none;border:0;border-bottom:1px solid var(--border);padding:13px 16px;align-items:flex-start}
+.nitem:hover{background:var(--surface-2)}
+.nitem.unread{background:var(--tint)}
+.nitem .nic{width:38px;height:38px;border-radius:10px;background:var(--surface);color:var(--teal-d);display:grid;place-items:center;font-size:18px;flex:none;border:1px solid var(--border)}
+.nitem .nb{flex:1;min-width:0}
+.nitem .nb b{font-weight:600;font-size:14px;display:block}
+.nitem .nb p{margin:2px 0;font-size:13px;color:var(--muted)}
+.nitem .nb time{font-size:11.5px;color:var(--muted)}
+.udot{width:8px;height:8px;border-radius:50%;background:var(--teal);margin-top:6px;flex:none}
+.nfoot{padding:10px;text-align:center}
+.nempty{padding:36px 16px;text-align:center;color:var(--muted);font-size:14px}
+.verify-tag{display:inline-flex;align-items:center;gap:5px;font-size:11.5px;color:var(--teal-d);margin-top:4px}
+.content{padding:28px 32px 48px;max-width:1180px;width:100%}
+.bottom-nav{display:none}
+
+.dash{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);gap:24px}
+.sec-head{display:flex;justify-content:space-between;align-items:baseline;margin:0 0 12px}
+.sec-head h3{margin:0;font-size:17px;font-weight:600}
+.sec-head .link{font-size:13px}
+.block{background:var(--surface);border-radius:18px;padding:22px;box-shadow:var(--shadow);margin-bottom:24px}
+.total{display:flex;justify-content:space-between;align-items:flex-end;gap:12px}
+.total .lbl{color:var(--muted);font-size:13px}
+.total .amt{font-size:34px;font-weight:600;letter-spacing:-.5px;line-height:1.15}
+.accts{display:flex;gap:14px;overflow-x:auto;padding-bottom:6px;scroll-snap-type:x mandatory}
+.acct{flex:0 0 300px;scroll-snap-align:start;border-radius:16px;padding:18px;color:#fff;position:relative;overflow:hidden;background:var(--grad)}
+.acct.alt{background:linear-gradient(135deg,#5B63E8,#8A8FF2)}
+.acct.alt2{background:linear-gradient(135deg,#0E9F8A,#2DDCC0)}
+.acct::after{content:"";position:absolute;width:160px;height:160px;border-radius:50%;background:rgba(255,255,255,.12);right:-40px;top:-50px}
+.acct .t{font-size:13px;opacity:.9}
+.acct .v{font-size:26px;font-weight:600;margin:2px 0 14px}
+.acct .acts{display:flex;gap:8px;position:relative;z-index:1}
+.pill{display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:7px 12px;font-size:12.5px;font-weight:600;border:1.5px solid #fff}
+.pill.w{background:#fff;color:#14213A}
+.pill.o{background:transparent;color:#fff}
+.acct .upd{font-size:11.5px;opacity:.85;margin-top:12px;display:flex;align-items:center;gap:6px}
+.qs{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.qs button{display:flex;flex-direction:column;align-items:center;gap:8px;background:none;border:0;padding:6px;font-size:13px;font-weight:500}
+.qs .q{width:54px;height:54px;border-radius:50%;background:var(--tint);color:var(--teal-d);display:grid;place-items:center;font-size:22px}
+.txn{display:flex;align-items:center;gap:12px;padding:12px;border:1px solid var(--border);border-radius:12px;margin-bottom:10px}
+.txn .ti{width:38px;height:38px;border-radius:10px;background:var(--tint);color:var(--teal-d);display:grid;place-items:center;font-size:18px;flex:none}
+.txn .tn{flex:1;min-width:0}
+.txn .tn b{display:block;font-weight:500;font-size:14px}
+.txn .tn span{font-size:12px;color:var(--muted)}
+.txn .ta{font-weight:600;font-size:14px;white-space:nowrap}
+.refer{display:flex;gap:16px;align-items:center;background:linear-gradient(135deg,#FFF6E8,#FFE9F1);color:#14213A;border-radius:18px;padding:20px}
+.refer h4{margin:0 0 4px;font-size:16px}
+.refer p{margin:0 0 12px;font-size:13px;color:#5B6478}
+.refer .gift{font-size:56px;color:#8A8FF2;flex:none}
+
+/* send money */
+.page-head{display:flex;align-items:center;gap:12px;margin-bottom:20px}
+.page-head h2{margin:0;font-size:24px;font-weight:600}
+.steps{display:flex;gap:6px;margin-bottom:24px;flex-wrap:wrap}
+.steps span{display:flex;align-items:center;gap:6px;font-size:12.5px;color:var(--muted);padding:5px 12px;border-radius:999px;background:var(--surface)}
+.steps span b{width:20px;height:20px;border-radius:50%;display:grid;place-items:center;background:var(--border);font-size:11px;color:var(--text)}
+.steps span.on{color:var(--teal-d);background:var(--tint)}
+.steps span.on b,.steps span.done b{background:var(--teal);color:#fff}
+.two{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);gap:24px;align-items:start}
+.amt-row{display:flex;border:1.5px solid var(--border);border-radius:12px;overflow:hidden;background:var(--surface)}
+.amt-row:focus-within{border-color:var(--teal)}
+.amt-row input{flex:1;min-width:0;border:0;outline:none;padding:14px;font-size:18px;font-weight:600;background:transparent}
+.cur{display:flex;align-items:center;gap:8px;padding:0 14px;border-left:1.5px solid var(--border);font-weight:600;font-size:14px;background:var(--surface-2)}
+.flag{width:22px;height:15px;border-radius:2px;overflow:hidden;display:inline-block}
+.rate{display:inline-block;font-size:12px;background:#FFF3DC;color:#8A5A00;border-radius:6px;padding:3px 9px;margin:10px 0}
+.opts{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.opts .opt{margin:0}
+.sum{position:sticky;top:96px}
+.sum-row{display:flex;justify-content:space-between;padding:7px 0;font-size:14px}
+.sum-row.tot{border-top:1.5px dashed var(--border);margin-top:6px;padding-top:12px;font-weight:600}
+.big-amt{font-size:34px;font-weight:600;text-align:center;letter-spacing:-.5px;margin:4px 0}
+.party{display:flex;align-items:center;gap:12px;padding:12px;border-radius:12px;background:var(--surface-2)}
+.party .ti{width:40px;height:40px;border-radius:10px;background:var(--tint);color:var(--teal-d);display:grid;place-items:center;font-size:18px}
+.arrow{display:grid;place-items:center;margin:6px 0;color:var(--teal-d);font-size:18px}
+.kv{display:grid;grid-template-columns:auto 1fr;gap:6px 16px;font-size:14px;margin-top:12px}
+.kv dt{color:var(--muted)}.kv dd{margin:0;text-align:right;font-weight:500}
+.success-ic{width:88px;height:88px;border-radius:50%;background:var(--tint);color:var(--teal);display:grid;place-items:center;font-size:44px;margin:0 auto 12px}
+.toggle{display:inline-flex;align-items:center;gap:8px;font-size:13px;color:var(--teal-d);font-weight:500;cursor:pointer}
+.toggle input{accent-color:var(--teal);width:16px;height:16px}
+.empty{text-align:center;padding:60px 20px}
+.empty .q{width:72px;height:72px;border-radius:50%;background:var(--tint);color:var(--teal-d);display:grid;place-items:center;font-size:32px;margin:0 auto 14px}
+
+/* demo journeys */
+.demo{position:fixed;right:20px;bottom:calc(20px + env(safe-area-inset-bottom,0px));z-index:50}
+.demo-btn{background:#14213A;color:#fff;border:0;border-radius:999px;padding:10px 16px;font-size:13px;font-weight:600;display:flex;align-items:center;gap:8px;box-shadow:0 8px 24px rgba(0,0,0,.25)}
+.demo-menu{position:absolute;right:0;bottom:52px;background:var(--surface);border:1px solid var(--border);border-radius:14px;box-shadow:var(--shadow);padding:8px;min-width:220px}
+.demo-menu p{margin:4px 10px 8px;font-size:12px;color:var(--muted)}
+.demo-menu button{display:block;width:100%;text-align:left;background:none;border:0;padding:9px 10px;border-radius:8px;font-size:14px}
+.demo-menu button:hover{background:var(--surface-2)}
+.toast{position:fixed;left:50%;top:calc(20px + env(safe-area-inset-top,0px));transform:translateX(-50%);background:#14213A;color:#fff;padding:10px 18px;border-radius:10px;font-size:14px;z-index:60;box-shadow:0 8px 24px rgba(0,0,0,.25)}
+
+/* ---------- Responsive ---------- */
+@media (max-width:1024px){
+  .dash,.two{grid-template-columns:1fr}
+  .sum{position:static}
+}
+@media (max-width:860px){
+  .auth{grid-template-columns:1fr}
+  .hero{padding:28px 24px 32px}
+  .hero h1{font-size:28px}
+  .hero-foot{display:none}
+  .panel{padding:72px 16px 32px;align-items:flex-start}
+  .card{padding:28px 20px}
+  .app{grid-template-columns:1fr}
+  .side{display:none}
+  .topbar{padding:14px 16px}
+  .content{padding:20px 16px 110px}
+  .bottom-nav{display:grid;grid-template-columns:repeat(4,1fr);position:fixed;left:0;right:0;bottom:0;background:var(--surface);border-top:1px solid var(--border);padding:8px 0 calc(8px + env(safe-area-inset-bottom,0px));z-index:10}
+  .bottom-nav .nav-btn{flex-direction:column;gap:3px;font-size:11.5px;padding:4px;align-items:center}
+  .bottom-nav .nav-btn.act{background:none}
+  .demo{bottom:calc(84px + env(safe-area-inset-bottom,0px))}
+  .acct{flex-basis:260px}
+  .npanel{position:fixed;top:calc(68px + env(safe-area-inset-top,0px));right:16px;left:16px;width:auto;max-width:none}
+  .opts{grid-template-columns:1fr}
+}
+@media (max-width:400px){ .code input{width:40px;height:48px} .qs .q{width:48px;height:48px} }
+
+.txn{width:100%;text-align:left;background:var(--surface);font:inherit;color:inherit;cursor:pointer}
+.txn:hover{border-color:var(--teal)}
+.txn .ta.in{color:var(--ok)}
+.txn .tr{text-align:right}.txn .tr small{display:block;font-size:11.5px;color:var(--muted);font-weight:400}
+.sheet-bg{position:fixed;inset:0;background:rgba(10,20,40,.45);display:grid;place-items:center;z-index:70;padding:16px}
+.sheet{background:var(--surface);border-radius:18px;max-width:440px;width:100%;padding:24px;max-height:90vh;overflow:auto}
+.status{display:inline-block;background:var(--tint);color:var(--teal-d);border-radius:999px;padding:3px 12px;font-size:12px;font-weight:600}
+.tabs{display:flex;gap:6px;flex-wrap:wrap}
+.tab{border:1.5px solid var(--border);background:var(--surface);border-radius:999px;padding:6px 14px;font-size:13px;font-weight:500}
+.tab.on{background:var(--teal);border-color:var(--teal);color:#fff}
+.day{font-size:12.5px;color:var(--muted);margin:18px 0 8px;font-weight:500}
+@keyframes bump{0%{color:var(--teal);transform:scale(1.03)}100%{color:inherit;transform:none}}
+.amt.bump,.v.bump{animation:bump 1.6s ease-out;display:inline-block}
+.live{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--ok);font-weight:500}
+.live i{width:8px;height:8px;border-radius:50%;background:var(--ok);animation:pulse 1.6s infinite}
+@keyframes pulse{50%{opacity:.3}}
+@media (prefers-reduced-motion:reduce){.amt.bump,.v.bump,.live i{animation:none}}
+.sum-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-bottom:20px}
+.sum-grid .block{margin:0;padding:16px}
+.sum-grid .lbl{font-size:12.5px;color:var(--muted)}.sum-grid b{font-size:18px;font-weight:600}
+.group-h{font-size:14px;font-weight:600;margin:22px 0 12px;padding-top:16px;border-top:1px solid var(--border)}
+.group-h.first{border-top:0;padding-top:0;margin-top:4px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:0 12px}
+.input.bad{border-color:var(--danger)}
+.fld-err{color:var(--danger);font-size:12px;margin-top:4px}
+.hint{font-size:12px;color:var(--muted);margin-top:4px}
+.notice{display:flex;gap:10px;align-items:flex-start;background:#FFF6E5;color:#7A5200;border-radius:10px;padding:12px;font-size:13px;margin-bottom:16px}
+.stepline{font-size:12.5px;color:var(--teal-d);font-weight:500;margin:0 0 4px}
+.chk{display:flex;gap:8px;align-items:center;font-size:13px;margin-top:8px;cursor:pointer}
+.chk input{accent-color:var(--teal);width:16px;height:16px}
+@media (max-width:600px){.sum-grid{grid-template-columns:1fr}.grid2{grid-template-columns:1fr}}
+
+.menu{background:var(--surface);border-radius:16px;box-shadow:var(--shadow);overflow:hidden;margin-bottom:20px}
+.menu-h{font-size:13px;color:var(--muted);font-weight:500;margin:0 0 8px 4px}
+.mi{display:flex;align-items:center;gap:14px;width:100%;text-align:left;background:none;border:0;border-bottom:1px solid var(--border);padding:14px 16px;font:inherit;color:inherit}
+.mi:last-child{border-bottom:0}
+button.mi:hover{background:var(--surface-2)}
+.mi .mic{width:38px;height:38px;border-radius:10px;background:var(--tint);color:var(--teal-d);display:grid;place-items:center;font-size:18px;flex:none}
+.mi .mt{flex:1;min-width:0}.mi .mt b{display:block;font-weight:500;font-size:14.5px}.mi .mt span{font-size:12.5px;color:var(--muted)}
+.mi .cnt{background:var(--surface-2);border-radius:999px;padding:2px 10px;font-size:12px;font-weight:600}
+.mi.danger{color:var(--danger)}.mi.danger .mic{background:#FDECEC;color:var(--danger)}
+.pcard{display:flex;align-items:center;gap:16px;background:var(--grad);color:#fff;border-radius:18px;padding:20px;margin-bottom:20px;position:relative;overflow:hidden}
+.pcard .avatar{width:58px;height:58px;font-size:22px;box-shadow:0 0 0 2px #fff}
+.pcard b{font-size:18px;font-weight:600;display:block}.pcard span{opacity:.9;font-size:13px}
+.kyc{display:inline-flex;align-items:center;gap:5px;background:rgba(255,255,255,.2);border-radius:999px;padding:3px 10px;font-size:12px;font-weight:600;margin-top:6px}
+.kyc.amber{background:#FFF3DC;color:#8A5A00}.kyc.green{background:var(--tint);color:var(--teal-d)}
+.sw{position:relative;width:44px;height:26px;flex:none}
+.sw input{position:absolute;opacity:0;width:100%;height:100%;margin:0;cursor:pointer;z-index:1}
+.sw span{position:absolute;inset:0;border-radius:999px;background:var(--border);transition:background .2s}
+.sw span::after{content:"";position:absolute;width:20px;height:20px;border-radius:50%;background:#fff;top:3px;left:3px;transition:transform .2s;box-shadow:0 1px 3px rgba(0,0,0,.2)}
+.sw input:checked+span{background:var(--teal)}.sw input:checked+span::after{transform:translateX(18px)}
+.sw input:focus-visible+span{outline:2px solid var(--blue);outline-offset:2px}
+.ben{display:flex;align-items:center;gap:12px;padding:14px;border:1px solid var(--border);border-radius:14px;margin-bottom:10px;background:var(--surface)}
+.ben .bav{width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,#1F7FE3,#2DDCC0);color:#fff;display:grid;place-items:center;font-weight:600;flex:none}
+.ben .bt{flex:1;min-width:0}.ben .bt b{display:block;font-weight:500}.ben .bt span{font-size:12.5px;color:var(--muted);display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ben .ba{display:flex;gap:6px;flex:none}
+.ben .ba button{width:36px;height:36px;border-radius:10px;border:1px solid var(--border);background:var(--surface);display:grid;place-items:center;font-size:16px;color:var(--muted)}
+.ben .ba button:hover{color:var(--teal-d);border-color:var(--teal)}
+.ben .ba button.del:hover{color:var(--danger);border-color:var(--danger)}
+.ben .ba button.fav.on{color:#F5A524;border-color:#F5A524}
+.mtag{display:inline-flex;align-items:center;gap:4px;font-size:11.5px;background:var(--surface-2);border-radius:6px;padding:1px 7px;margin-right:6px;color:var(--text)}
+details.faq{border-bottom:1px solid var(--border);padding:14px 16px}
+details.faq summary{cursor:pointer;font-weight:500;list-style:none;display:flex;justify-content:space-between;gap:12px}
+details.faq summary::-webkit-details-marker{display:none}
+details.faq summary::after{content:"+";color:var(--teal-d);font-weight:600}
+details.faq[open] summary::after{content:"–"}
+details.faq p{margin:8px 0 0;color:var(--muted);font-size:14px}
+.ro{background:var(--surface-2);color:var(--muted)}
+
+.chat-log{height:min(52vh,460px);overflow-y:auto;display:flex;flex-direction:column;gap:10px;padding:4px 2px 8px}
+.msg{max-width:80%;padding:10px 14px;border-radius:16px;font-size:14px;white-space:pre-wrap;word-wrap:break-word;line-height:1.5}
+.msg.agent{background:var(--surface-2);border-bottom-left-radius:4px;align-self:flex-start}
+.msg.me{background:var(--teal);color:#fff;border-bottom-right-radius:4px;align-self:flex-end}
+.msg.sys{align-self:center;background:#FFF6E5;color:#7A5200;font-size:12.5px;max-width:95%;text-align:center}
+.who-row{display:flex;align-items:center;gap:6px;font-size:11.5px;color:var(--muted);margin-bottom:-6px}
+.typing{display:inline-flex;gap:4px}.typing i{width:7px;height:7px;border-radius:50%;background:var(--muted);animation:pulse 1s infinite}
+.typing i:nth-child(2){animation-delay:.2s}.typing i:nth-child(3){animation-delay:.4s}
+.chat-in{display:flex;gap:8px;margin-top:10px}
+.chat-in textarea{flex:1;resize:none;min-height:46px;max-height:120px}
+.chips-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.chips-row button{border:1.5px solid var(--border);background:var(--surface);border-radius:999px;padding:6px 12px;font-size:12.5px}
+.chips-row button:hover{border-color:var(--teal);color:var(--teal-d)}
+.rules{list-style:none;padding:0;margin:8px 0 0;font-size:12.5px}
+.rules li{display:flex;gap:6px;align-items:center;color:var(--muted);padding:2px 0}
+.rules li.ok{color:var(--ok)}
+button.lang{cursor:pointer;color:var(--text)}
+</style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs><linearGradient id="swg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#2DDCC0"/><stop offset="1" stop-color="#1F7FE3"/></linearGradient></defs>
+</svg>
+
+<!-- ============ AUTH ============ -->
+<div id="auth" class="auth">
+  <aside class="hero">
+    <span class="blob" style="width:340px;height:340px;background:#2DDCC0;right:-90px;top:-110px"></span>
+    <span class="blob" style="width:220px;height:220px;background:#8A8FF2;left:-70px;bottom:-60px"></span>
+    <span class="blob" style="width:60px;height:60px;background:#fff;right:22%;bottom:22%;opacity:.2"></span>
+    <div style="position:relative"><span class="logo light" data-logo></span></div>
+    <div style="position:relative">
+      <h1>Money that moves as fast as you do.</h1>
+      <p>Send, receive and manage money, instant transfers, everyday services.</p>
+      <div class="chips"><span class="chip">Fast</span><span class="chip">Secure</span><span class="chip">Reliable</span></div>
+    </div>
+    <div class="hero-foot">swiftwave.app</div>
+  </aside>
+  <main class="panel">
+    <div class="panel-top"><span></span>
+      <button class="lang" id="langBtn" aria-label="Change language"></button>
+    </div>
+    <div class="card" id="authCard"></div>
+  </main>
+</div>
+
+<!-- ============ APP ============ -->
+<div id="app" class="app hidden">
+  <aside class="side">
+    <span class="logo sm" data-logo></span>
+    <div id="sideNav"></div>
+    <div class="sp"></div>
+    <button class="nav-btn" data-go="logout"><span data-ic="logout"></span>Log out</button>
+  </aside>
+  <div class="main">
+    <header class="topbar">
+      <div class="who"><div class="avatar" id="whoAv">K</div><div><small>Helloooooo!</small><b id="whoName">Karlos</b></div></div>
+      <div class="notif-wrap" id="nwrap">
+        <button class="icon-btn" id="bell" aria-label="Notifications" aria-haspopup="true" aria-expanded="false"><span data-ic="bell"></span><span class="nbadge hidden" id="nbadge"></span></button>
+        <div class="npanel hidden" id="npanel" role="dialog" aria-label="Notifications"></div>
+      </div>
+    </header>
+    <div class="content" id="appContent"></div>
+  </div>
+  <nav class="bottom-nav" id="bottomNav"></nav>
+</div>
+
+<div class="demo">
+  <div class="demo-menu hidden" id="demoMenu">
+    <p>Jump to a catalogue journey</p>
+    <button data-demo="login">Login journey</button>
+    <button data-demo="citizen">Citizen signup journey</button>
+    <button data-demo="foreigner">Foreign signup journey</button>
+    <button data-demo="immigrant">Immigrant signup journey</button>
+    <button data-demo="send">Send money journey</button>
+  </div>
+  <button class="demo-btn" id="demoBtn"><span data-ic="route"></span>Journeys</button>
+</div>
+
+<script>
+/* ================= i18n ================= */
+const FR={"Money that moves as fast as you do.": "L'argent qui va aussi vite que vous.", "Send, receive and manage money, instant transfers, everyday services.": "Envoyez, recevez et gérez votre argent : virements instantanés et services du quotidien.", "Fast": "Rapide", "Secure": "Sécurisé", "Reliable": "Fiable", "Journeys": "Parcours", "Jump to a catalogue journey": "Aller à un parcours du catalogue", "Login journey": "Parcours de connexion", "Citizen signup journey": "Inscription citoyen", "Foreign signup journey": "Inscription étranger", "Immigrant signup journey": "Inscription immigrant", "Send money journey": "Parcours d'envoi d'argent", "Change language": "Changer de langue", "Helloooooo!": "Bonjouuuuur !", "Enter Your Phone Number": "Saisissez votre numéro de téléphone", "Register with": "Inscrivez-vous avec", "country code": "l'indicatif du pays", "&": "et", "phone number": "le numéro de téléphone", "Country code": "Indicatif du pays", "Your Phone Number": "Votre numéro de téléphone", "Let's Get Started": "Commencer", "Already have an account?": "Vous avez déjà un compte ?", "Login": "Se connecter", "Sign in to your account": "Connectez-vous à votre compte", "Mobile Number": "Numéro de mobile", "Your mobile number": "Votre numéro de mobile", "Password": "Mot de passe", "Enter your password": "Saisissez votre mot de passe", "Show password": "Afficher le mot de passe", "Forgot password?": "Mot de passe oublié ?", "Don't have an account?": "Vous n'avez pas de compte ?", "Sign up": "S'inscrire", "Enter a valid mobile number (7–12 digits).": "Saisissez un numéro de mobile valide (7 à 12 chiffres).", "Enter a valid phone number (7–12 digits).": "Saisissez un numéro de téléphone valide (7 à 12 chiffres).", "Enter your password.": "Saisissez votre mot de passe.", "Back": "Retour", "OTP Verification": "Vérification OTP", "Didn't receive code?": "Code non reçu ?", "Resend in": "Renvoyer dans", "Resend": "Renvoyer", "Submit": "Valider", "Demo: enter any 6 digits": "Démo : saisissez 6 chiffres", "You can request a new code now.": "Vous pouvez demander un nouveau code.", "Registration Type": "Type d'inscription", "Select your registration type to enjoy our services": "Choisissez votre type d'inscription pour profiter de nos services", "Citizen": "Citoyen", "Foreigner": "Étranger", "Immigrant": "Immigrant", "I hold a national identity document": "Je possède une pièce d'identité nationale", "I hold a foreign passport or permit": "Je possède un passeport ou un permis étranger", "I am relocating and seeking residency": "Je m'installe et demande la résidence", "Not sure which type applies to you?": "Vous ne savez pas quel type choisir ?", "Get help": "Obtenir de l'aide", "Citizen: national ID": "Citoyen : carte d'identité nationale", "Foreigner: passport/permit": "Étranger : passeport/permis", "Immigrant: relocating": "Immigrant : en cours d'installation", "Your details": "Vos informations", "Enter your details exactly as they appear on your documents.": "Saisissez vos informations exactement comme sur vos documents.", "Your account opens with lower transaction limits until your residency or refugee status is confirmed.": "Votre compte est ouvert avec des plafonds réduits jusqu'à la confirmation de votre statut de résident ou de réfugié.", "Personal details": "Informations personnelles", "Identity": "Identité", "Address": "Adresse", "Employment & funds": "Emploi et fonds", "First name": "Prénom", "Surname": "Nom", "Date of birth": "Date de naissance", "You must be 18 or older": "Vous devez avoir 18 ans ou plus", "Gender": "Sexe", "Female": "Femme", "Male": "Homme", "Email (optional)": "E-mail (facultatif)", "For e-statements and alerts": "Pour les relevés et alertes électroniques", "National ID number": "Numéro de carte d'identité", "As printed on your national ID": "Tel qu'imprimé sur votre carte d'identité", "Residential address": "Adresse de résidence", "House number and street": "Numéro et rue", "City / Town": "Ville", "Province": "Province", "Occupation": "Profession", "Source of funds": "Origine des fonds", "Select": "Sélectionner", "Salary / employment": "Salaire / emploi", "Business income": "Revenus d'entreprise", "Remittances from family": "Transferts de la famille", "Pension": "Pension", "Savings": "Épargne", "Other": "Autre", "Nationality": "Nationalité", "Passport number": "Numéro de passeport", "Passport expiry date": "Date d'expiration du passeport", "Permit / visa type": "Type de permis / visa", "Permit / visa number": "Numéro de permis / visa", "Permit / visa expiry date": "Date d'expiration du permis / visa", "Temporary Employment Permit": "Permis de travail temporaire", "Residence Permit": "Permis de résidence", "Student Permit": "Permis d'études", "Retired Persons Residence Permit": "Permis de résidence pour retraités", "Investor / Business Permit": "Permis investisseur / affaires", "Visitor visa": "Visa visiteur", "Address in Zimbabwe": "Adresse au Zimbabwe", "Employer / institution": "Employeur / établissement", "Country of origin": "Pays d'origine", "Current status": "Statut actuel", "Residence permit application pending": "Demande de permis de résidence en cours", "Asylum seeker": "Demandeur d'asile", "Recognised refugee": "Réfugié reconnu", "Identity document": "Pièce d'identité", "Passport": "Passeport", "Refugee ID": "Carte de réfugié", "Asylum seeker permit": "Permis de demandeur d'asile", "Document number": "Numéro du document", "Document expiry date": "Date d'expiration du document", "Application / file reference number": "Numéro de dossier / de demande", "From your immigration or refugee office receipt": "Figure sur le reçu du bureau de l'immigration ou des réfugiés", "Date of arrival in Zimbabwe": "Date d'arrivée au Zimbabwe", "Current address": "Adresse actuelle", "Botswana": "Botswana", "China": "Chine", "DR Congo": "RD Congo", "India": "Inde", "Kenya": "Kenya", "Malawi": "Malawi", "Mozambique": "Mozambique", "Nigeria": "Nigeria", "South Africa": "Afrique du Sud", "United Kingdom": "Royaume-Uni", "United States": "États-Unis", "Zambia": "Zambie", "You must be 18 or older to register.": "Vous devez avoir 18 ans ou plus pour vous inscrire.", "This document has expired. Use a valid document.": "Ce document a expiré. Utilisez un document valide.", "Date can't be in the future.": "La date ne peut pas être dans le futur.", "Use the format 63-123456A42.": "Utilisez le format 63-123456A42.", "Passport number should be 6–12 letters or digits.": "Le numéro de passeport doit comporter 6 à 12 lettres ou chiffres.", "Enter a valid email address.": "Saisissez une adresse e-mail valide.", "Next": "Suivant", "Cancel": "Annuler", "Documents": "Documents", "Upload clear photos or PDFs. All four corners must be visible.": "Importez des photos nettes ou des PDF. Les quatre coins doivent être visibles.", "National ID (front)": "Carte d'identité (recto)", "National ID (back)": "Carte d'identité (verso)", "Proof of residence": "Justificatif de domicile", "Proof of residence in Zimbabwe": "Justificatif de domicile au Zimbabwe", "Proof of address": "Justificatif d'adresse", "Not older than 3 months": "De moins de 3 mois", "Select document type": "Sélectionnez le type de document", "Choose document": "Choisir un document", "Scan document": "Scanner le document", "Scanning…": "Numérisation…", "This document is in someone else's name": "Ce document est au nom d'une autre personne", "Replace": "Remplacer", "Sworn affidavit and the owner's ID": "Déclaration sous serment et pièce d'identité du titulaire", "Needed because the proof of residence is in someone else's name": "Requis car le justificatif de domicile est au nom d'une autre personne", "Utility bill (ZESA, water, TelOne)": "Facture (ZESA, eau, TelOne)", "Bank statement": "Relevé bancaire", "Lease agreement": "Contrat de bail", "Letter from employer": "Lettre de l'employeur", "Affidavit from landlord": "Attestation du propriétaire", "Letter from councillor / village head": "Lettre du conseiller / chef de village", "Letter from host / sponsor": "Lettre de l'hébergeur / du garant", "Refugee settlement letter": "Lettre du camp de réfugiés", "Utility bill": "Facture", "Passport photo page": "Page photo du passeport", "Permit or visa": "Permis ou visa", "Must be valid": "Doit être en cours de validité", "Proof of enrolment": "Certificat d'inscription", "Asylum registration slip": "Récépissé de demande d'asile", "Refugee status letter": "Lettre de statut de réfugié", "Immigration application receipt": "Reçu de demande d'immigration", "Shows your application or status reference": "Indique la référence de votre demande ou de votre statut", "Lease, host letter, affidavit or settlement letter": "Bail, lettre d'hébergement, attestation ou lettre du camp", "Select the type of proof of residence.": "Sélectionnez le type de justificatif de domicile.", "Consent": "Consentement", "wants to access your personal data information.": "souhaite accéder à vos données personnelles.", "This will allow Swift to:": "Cela permettra à Swift de :", "Process your personal details": "Traiter vos informations personnelles", "Process your contact information": "Traiter vos coordonnées", "Process your document information": "Traiter les informations de vos documents", "You can view Swift's privacy policies": "Vous pouvez consulter la politique de confidentialité de Swift", "here": "ici", "By choosing \"Allow\" below, you grant Swift consent to process your personal data to offer you this service.": "En choisissant « Autoriser » ci-dessous, vous autorisez Swift à traiter vos données personnelles pour vous fournir ce service.", "Allow": "Autoriser", "Take a Selfie": "Prendre un selfie", "Find good light and remove glasses or hats": "Placez-vous dans un endroit lumineux et retirez lunettes ou chapeau", "Camera is off": "Caméra désactivée", "Open camera": "Ouvrir la caméra", "Opening camera…": "Ouverture de la caméra…", "Capture now": "Capturer maintenant", "Continue with demo selfie": "Continuer avec le selfie de démo", "Try again": "Réessayer", "Capturing Selfie, Please Stay Still": "Capture du selfie, ne bougez pas", "Put your face in the oval frame and wait until it turns blue": "Placez votre visage dans l'ovale et attendez qu'il devienne bleu", "Face detected — hold still": "Visage détecté, ne bougez pas", "Your selfie": "Votre selfie", "Camera access was blocked. Allow camera access in your browser's address bar, then try again.": "L'accès à la caméra est bloqué. Autorisez-le dans la barre d'adresse du navigateur, puis réessayez.", "No camera found on this device.": "Aucune caméra trouvée sur cet appareil.", "The camera couldn't start. Close other apps using it and try again.": "La caméra n'a pas pu démarrer. Fermez les autres applications qui l'utilisent et réessayez.", "This browser can't open the camera.": "Ce navigateur ne peut pas ouvrir la caméra.", "Is this a good quality selfie?": "Ce selfie est-il de bonne qualité ?", "Make sure your whole face is visible and clear": "Vérifiez que tout votre visage est visible et net", "Yes, use this": "Oui, utiliser celui-ci", "No, retake selfie": "Non, reprendre le selfie", "Set Your PIN": "Définissez votre code PIN", "Enter 6 digit PIN to continue.": "Saisissez un code PIN à 6 chiffres pour continuer.", "Note:": "Remarque :", "PIN shouldn't be 000000": "Le code PIN ne doit pas être 000000", "Enter PIN": "Saisir le code PIN", "Re-enter PIN": "Confirmer le code PIN", "Show PIN": "Afficher le code PIN", "Hide PIN": "Masquer le code PIN", "Set PIN": "Valider le code PIN", "PIN can't be 000000. Choose a different PIN.": "Le code PIN ne peut pas être 000000. Choisissez-en un autre.", "PINs don't match. Re-enter your PIN.": "Les codes PIN ne correspondent pas. Saisissez-le à nouveau.", "Reset your password": "Réinitialiser votre mot de passe", "Enter the mobile number linked to your account. We'll send you a verification code.": "Saisissez le numéro de mobile associé à votre compte. Nous vous enverrons un code de vérification.", "Send code": "Envoyer le code", "Confirm your PIN": "Confirmez votre code PIN", "Enter your 6-digit transaction PIN to confirm it's you.": "Saisissez votre code PIN de transaction à 6 chiffres pour confirmer votre identité.", "Continue": "Continuer", "Demo: use the PIN you set at registration": "Démo : utilisez le code PIN défini à l'inscription", "Demo: any 6 digits except 000000": "Démo : 6 chiffres, sauf 000000", "Too many incorrect attempts. Your reset is locked for 30 minutes. Contact support for help.": "Trop de tentatives incorrectes. La réinitialisation est bloquée pendant 30 minutes. Contactez le support.", "Create a new password": "Créez un nouveau mot de passe", "Use a password you haven't used before.": "Choisissez un mot de passe que vous n'avez jamais utilisé.", "New password": "Nouveau mot de passe", "Enter new password": "Saisissez le nouveau mot de passe", "At least 8 characters": "Au moins 8 caractères", "A letter": "Une lettre", "A number": "Un chiffre", "A special character": "Un caractère spécial", "Confirm new password": "Confirmer le nouveau mot de passe", "Re-enter new password": "Saisissez à nouveau le mot de passe", "Reset password": "Réinitialiser le mot de passe", "Passwords don't match.": "Les mots de passe ne correspondent pas.", "Password reset": "Mot de passe réinitialisé", "Your password was changed. Sign in with your mobile number and new password.": "Votre mot de passe a été modifié. Connectez-vous avec votre numéro de mobile et votre nouveau mot de passe.", "Go to login": "Aller à la connexion", "Home": "Accueil", "Send Money": "Envoyer de l'argent", "Top Up": "Recharge", "Transactions": "Transactions", "My Stuff": "Mon espace", "Log out": "Se déconnecter", "Notifications": "Notifications", "Mark all as read": "Tout marquer comme lu", "View all notifications": "Voir toutes les notifications", "You're all caught up.": "Vous êtes à jour.", "Unread": "Non lu", "Just now": "À l'instant", "2h ago": "Il y a 2 h", "Yesterday": "Hier", "2 days ago": "Il y a 2 jours", "Today": "Aujourd'hui", "Money received": "Argent reçu", "Refer & Earn": "Parrainez et gagnez", "Security tip": "Conseil de sécurité", "Account created": "Compte créé", "New sign-in": "Nouvelle connexion", "Transfer successful": "Transfert réussi", "Top up successful": "Recharge réussie", "PIN changed": "Code PIN modifié", "Password changed": "Mot de passe modifié", "Profile updated": "Profil mis à jour", "Invite your friends and get a reward of 3 GB of mobile data.": "Invitez vos amis et gagnez 3 Go de données mobiles.", "Invite your friends and get a reward of 3 GB of mobile data": "Invitez vos amis et gagnez 3 Go de données mobiles", "Never share your PIN or OTP with anyone, including Swift Wave staff.": "Ne communiquez jamais votre code PIN ou OTP, même au personnel de Swift Wave.", "Your PIN is set and your Swift Wave account is ready to use.": "Votre code PIN est défini et votre compte Swift Wave est prêt.", "You signed in on Swift Wave Web. If this wasn't you, change your password.": "Vous vous êtes connecté sur Swift Wave Web. Si ce n'était pas vous, changez votre mot de passe.", "Your transaction PIN was changed. If this wasn't you, contact support.": "Votre code PIN de transaction a été modifié. Si ce n'était pas vous, contactez le support.", "Your sign-in password was changed.": "Votre mot de passe de connexion a été modifié.", "Your contact and address details were updated.": "Vos coordonnées et votre adresse ont été mises à jour.", "Your password was reset using OTP and PIN verification.": "Votre mot de passe a été réinitialisé après vérification OTP et PIN.", "Total Balance": "Solde total", "Accounts": "Comptes", "View All ›": "Tout voir ›", "Wallet Balance": "Solde du portefeuille", "Add Money": "Ajouter de l'argent", "Send Cash": "Envoyer", "Refresh": "Actualiser", "Transfer": "Virement", "Quick Services": "Services rapides", "Pay": "Payer", "History": "Historique", "All transactions ›": "Toutes les transactions ›", "Live": "En direct", "Refer Now": "Parrainer", "Wallet": "Portefeuille", "Savings Account": "Compte épargne", "Swift Wave Card": "Carte Swift Wave", "Balance updated": "Solde actualisé", "Referral link copied": "Lien de parrainage copié", "Hide balances": "Masquer les soldes", "Show balances": "Afficher les soldes", "Receiving Method": "Mode de réception", "Receiving method": "Mode de réception", "How should the receiver get the money?": "Comment le bénéficiaire doit-il recevoir l'argent ?", "Bank Account": "Compte bancaire", "Mobile Money": "Mobile Money", "Cash Pickup": "Retrait d'espèces", "Voucher": "Bon", "Send to any local or international bank account": "Envoi vers tout compte bancaire local ou international", "Send to a mobile money wallet": "Envoi vers un portefeuille mobile money", "Receiver collects cash at an agent": "Le bénéficiaire retire les espèces chez un agent", "Receiver redeems a voucher code": "Le bénéficiaire utilise un code de bon", "Paying With": "Payer avec", "Paying with": "Payer avec", "Choose where the money comes from": "Choisissez d'où provient l'argent", "Available": "Disponible", "Confirmed with OTP": "Confirmé par OTP", "Confirmed with CVV & card PIN": "Confirmé par CVV et code PIN de la carte", "Change": "Modifier", "You Send": "Vous envoyez", "Enter Amount": "Saisir le montant", "They Receive": "Ils reçoivent", "Summary": "Récapitulatif", "Send": "Envoyer", "Charge": "Frais", "Total to Pay": "Total à payer", "Total to Receive": "Total à recevoir", "Amount": "Montant", "Receiver": "Bénéficiaire", "Review": "Vérification", "Done": "Terminé", "OTP": "OTP", "Card check": "Vérif. carte", "Choose Receiver": "Choisir un bénéficiaire", "Account Number": "Numéro de compte", "Enter account number": "Saisir le numéro de compte", "Receiver Name": "Nom du bénéficiaire", "Enter receiver name": "Saisir le nom du bénéficiaire", "Receiving Bank": "Banque du bénéficiaire", "SWIFT / IBAN": "SWIFT / IBAN", "Enter SWIFT or IBAN": "Saisir le SWIFT ou l'IBAN", "Mobile Money Provider": "Opérateur Mobile Money", "Receiver Mobile Number": "Numéro de mobile du bénéficiaire", "Pickup Location": "Lieu de retrait", "You're sending": "Vous envoyez", "From": "De", "To": "À", "Name": "Nom", "Swift Code": "Code SWIFT", "Bank Name": "Nom de la banque", "Provider": "Opérateur", "Mobile number": "Numéro de mobile", "Review & Confirm": "Vérifier et confirmer", "Confirm": "Confirmer", "Verify Card Payment": "Vérifier le paiement par carte", "CVV": "CVV", "Card PIN": "Code PIN de la carte", "Demo: any CVV and card PIN except 0000": "Démo : tout CVV et code PIN sauf 0000", "Incorrect card PIN. Try again.": "Code PIN de carte incorrect. Réessayez.", "Processing…": "Traitement…", "Success": "Succès", "Transaction Successful": "Transaction réussie", "Transaction ID": "ID de transaction", "Save Receiver": "Enregistrer le bénéficiaire", "Ok": "OK", "Share": "Partager", "Receiver saved to beneficiaries": "Bénéficiaire enregistré", "Receipt copied": "Reçu copié", "Receiver gets": "Le bénéficiaire reçoit", "Exchange rate": "Taux de change", "Account number looks too short.": "Le numéro de compte semble trop court.", "Enter a valid mobile number.": "Saisissez un numéro de mobile valide.", "Top up details": "Détails de la recharge", "Top up for": "Recharger pour", "My number": "Mon numéro", "Another number": "Un autre numéro", "Family or friends": "Famille ou amis", "Network": "Réseau", "Top up type": "Type de recharge", "Airtime": "Crédit d'appel", "Call & SMS credit": "Crédit appels et SMS", "Data Bundle": "Forfait internet", "Internet bundles": "Forfaits internet", "Bundle": "Forfait", "Daily 500 MB": "Journalier 500 Mo", "Weekly 1 GB": "Hebdo 1 Go", "Monthly 3 GB": "Mensuel 3 Go", "Monthly 10 GB": "Mensuel 10 Go", "Mobile": "Mobile", "Type": "Type", "Airtime must be between ZWD 100 and ZWD 50,000.": "Le crédit doit être compris entre ZWD 100 et ZWD 50 000.", "Reference": "Référence", "Top up again": "Nouvelle recharge", "Top up": "Recharge", "Transaction History": "Historique des transactions", "Updating live": "Mise à jour en direct", "Total balance": "Solde total", "Money in": "Entrées", "Money out": "Sorties", "All": "Tous", "Sent": "Envoyés", "Received": "Reçus", "Search name, number or reference": "Rechercher un nom, numéro ou référence", "Successful": "Réussie", "No transactions match your search.": "Aucune transaction ne correspond à votre recherche.", "No transactions yet. Send money or top up to see them here.": "Aucune transaction pour l'instant. Envoyez de l'argent ou rechargez pour les voir ici.", "Transaction details": "Détails de la transaction", "Date & time": "Date et heure", "Paid from": "Payé depuis", "Credited to": "Crédité sur", "Fee": "Frais", "Balance after": "Solde après", "Share receipt": "Partager le reçu", "Close": "Fermer", "Money sent": "Argent envoyé", "Bank transfer": "Virement bancaire", "Account": "Compte", "My Profile": "Mon profil", "Personal details, contact and address": "Informations personnelles, coordonnées et adresse", "Beneficiaries": "Bénéficiaires", "Saved receivers for Send Money": "Bénéficiaires enregistrés pour les envois", "Security & settings": "Sécurité et paramètres", "Security": "Sécurité", "PIN, password and sign-in": "Code PIN, mot de passe et connexion", "Choose what you hear about": "Choisissez vos alertes", "Language & Display": "Langue et affichage", "Language and theme": "Langue et thème", "Support": "Assistance", "Help & Support": "Aide et assistance", "FAQs, call or chat with us": "FAQ, appel ou chat", "About & Legal": "À propos et mentions légales", "Terms, privacy and app version": "Conditions, confidentialité et version", "Verified": "Vérifié", "Pending status confirmation": "Statut en attente de confirmation", "Log out?": "Se déconnecter ?", "You'll need your mobile number and password to sign in again.": "Vous aurez besoin de votre numéro de mobile et de votre mot de passe pour vous reconnecter.", "Logged out": "Déconnecté", "Registration type": "Type d'inscription", "ID / document number": "Numéro de pièce d'identité", "To change these details, contact support with a supporting document.": "Pour modifier ces informations, contactez le support avec un justificatif.", "Contact & address": "Coordonnées et adresse", "Email": "E-mail", "Save changes": "Enregistrer", "Address and city are required.": "L'adresse et la ville sont obligatoires.", "Profile saved": "Profil enregistré", "Add beneficiary": "Ajouter un bénéficiaire", "Add Beneficiary": "Ajouter un bénéficiaire", "Edit Beneficiary": "Modifier le bénéficiaire", "Search beneficiaries": "Rechercher un bénéficiaire", "Send money": "Envoyer de l'argent", "Favourite": "Favori", "Edit": "Modifier", "Delete": "Supprimer", "No beneficiaries match.": "Aucun bénéficiaire ne correspond.", "No beneficiaries yet.": "Aucun bénéficiaire pour l'instant.", "Delete beneficiary?": "Supprimer le bénéficiaire ?", "Beneficiary deleted": "Bénéficiaire supprimé", "Beneficiary updated": "Bénéficiaire modifié", "Beneficiary added": "Bénéficiaire ajouté", "To change the method, add a new beneficiary.": "Pour changer de mode, ajoutez un nouveau bénéficiaire.", "Nickname (optional)": "Surnom (facultatif)", "e.g. Mum, Landlord": "ex. Maman, Propriétaire", "Mark as favourite": "Marquer comme favori", "Delete beneficiary": "Supprimer le bénéficiaire", "This beneficiary is already saved.": "Ce bénéficiaire est déjà enregistré.", "Change PIN": "Changer le code PIN", "Your 6-digit PIN confirms payments.": "Votre code PIN à 6 chiffres confirme les paiements.", "Current PIN": "Code PIN actuel", "New PIN": "Nouveau code PIN", "Confirm new PIN": "Confirmer le nouveau code PIN", "Change password": "Changer le mot de passe", "Current password": "Mot de passe actuel", "At least 8 characters with a letter and a number": "Au moins 8 caractères avec une lettre et un chiffre", "Enter all three PINs.": "Saisissez les trois codes PIN.", "PIN can't be 000000.": "Le code PIN ne peut pas être 000000.", "Avoid repeated or sequential digits.": "Évitez les chiffres répétés ou consécutifs.", "Current PIN is incorrect.": "Le code PIN actuel est incorrect.", "New PIN must be different from your current PIN.": "Le nouveau code PIN doit être différent de l'actuel.", "New PINs don't match.": "Les nouveaux codes PIN ne correspondent pas.", "Enter your current password.": "Saisissez votre mot de passe actuel.", "Use at least 8 characters with a letter and a number.": "Utilisez au moins 8 caractères avec une lettre et un chiffre.", "Sign-in": "Connexion", "OTP on new devices": "OTP sur les nouveaux appareils", "Ask for a code when signing in on a new device": "Demander un code lors d'une connexion depuis un nouvel appareil", "Show •••• instead of amounts on Home": "Afficher •••• au lieu des montants sur l'accueil", "Active sessions": "Sessions actives", "This browser": "Ce navigateur", "Swift Wave Web · active now": "Swift Wave Web · actif maintenant", "Current": "Actuelle", "Android phone": "Téléphone Android", "Swift Wave app · last active yesterday": "Application Swift Wave · active hier", "Sign out all other devices": "Déconnecter les autres appareils", "Sign out other devices?": "Déconnecter les autres appareils ?", "Every device except this browser will be signed out.": "Tous les appareils sauf ce navigateur seront déconnectés.", "Sign out": "Déconnecter", "Other devices signed out": "Autres appareils déconnectés", "OTP on new devices turned on": "OTP sur nouveaux appareils activé", "OTP on new devices turned off": "OTP sur nouveaux appareils désactivé", "Balances hidden": "Soldes masqués", "Balances shown": "Soldes affichés", "Money sent, received and top ups": "Envois, réceptions et recharges", "Security alerts": "Alertes de sécurité", "Sign-ins, PIN and password changes": "Connexions, changements de PIN et de mot de passe", "Offers & rewards": "Offres et récompenses", "Refer & Earn and promotions": "Parrainage et promotions", "Turned-off categories won't appear in your notification bell.": "Les catégories désactivées n'apparaîtront pas dans vos notifications.", "Notification settings saved": "Paramètres de notification enregistrés", "Language": "Langue", "Theme": "Thème", "System": "Système", "Match your device": "Comme votre appareil", "Light": "Clair", "Dark": "Sombre", "Language set to French": "Langue définie : français", "Language set to English": "Langue définie : anglais", "Call us": "Appelez-nous", "Live chat": "Chat en direct", "Chat with our assistant now": "Discutez avec notre assistant", "Frequently asked questions": "Questions fréquentes", "Calling support…": "Appel du support…", "Opening your email app…": "Ouverture de votre messagerie…", "How long does a transfer take?": "Combien de temps prend un transfert ?", "Transfers to Swift Wave and mobile money wallets are instant. Bank transfers usually arrive the same business day.": "Les transferts vers Swift Wave et les portefeuilles mobile money sont instantanés. Les virements bancaires arrivent généralement le jour ouvré même.", "What are the transfer fees?": "Quels sont les frais de transfert ?", "The fee for each receiving method is shown before you confirm. It is ZWD 5 in this prototype.": "Les frais de chaque mode de réception sont affichés avant confirmation. Ils sont de ZWD 5 dans ce prototype.", "I forgot my PIN. What do I do?": "J'ai oublié mon code PIN. Que faire ?", "Go to My Stuff → Security, or contact support to reset it after verifying your identity.": "Allez dans Mon espace → Sécurité, ou contactez le support pour le réinitialiser après vérification de votre identité.", "How do I add a beneficiary?": "Comment ajouter un bénéficiaire ?", "Go to My Stuff → Beneficiaries → Add beneficiary, or tick \"Save Receiver\" after a transfer.": "Allez dans Mon espace → Bénéficiaires → Ajouter un bénéficiaire, ou cochez « Enregistrer le bénéficiaire » après un transfert.", "Why is my account pending?": "Pourquoi mon compte est-il en attente ?", "Immigrant accounts stay on lower limits until your residency or refugee status is confirmed.": "Les comptes immigrants ont des plafonds réduits jusqu'à la confirmation de votre statut de résident ou de réfugié.", "Version 1.0.0 (prototype)": "Version 1.0.0 (prototype)", "Terms & Conditions": "Conditions générales", "Privacy Policy": "Politique de confidentialité", "Fees & Charges": "Frais et commissions", "Licences": "Licences", "Coming soon": "Bientôt disponible", "All Services": "Tous les services", "The catalogue covers Login, Signup, Send Money and Top Up. Start a transfer to walk the full flow.": "Le catalogue couvre la connexion, l'inscription, l'envoi d'argent et la recharge. Lancez un transfert pour parcourir le flux complet.", "Connecting…": "Connexion…", "Online": "En ligne", "Offline": "Hors ligne", "Type your message": "Saisissez votre message", "Stop": "Arrêter", "Swift Wave assistant": "Assistant Swift Wave", "Never share your PIN, OTP or password in chat. Our assistant will never ask for them.": "Ne communiquez jamais votre code PIN, OTP ou mot de passe dans le chat. Notre assistant ne vous les demandera jamais.", "Why was I charged ZWD 5?": "Pourquoi ai-je payé ZWD 5 de frais ?", "I forgot my PIN": "J'ai oublié mon code PIN", "Talk to a person": "Parler à un conseiller", "Live chat works when this page is opened in Claude. Call +263 242 000 000 or email support@swiftwave.app for help.": "Le chat fonctionne lorsque cette page est ouverte dans Claude. Appelez le +263 242 000 000 ou écrivez à support@swiftwave.app.", "Live chat needs your permission to use Claude. Reopen the chat to allow it, or call +263 242 000 000.": "Le chat a besoin de votre autorisation pour utiliser Claude. Rouvrez le chat pour l'autoriser, ou appelez le +263 242 000 000.", "Too many messages at once. Wait a moment, then try again.": "Trop de messages à la fois. Patientez un instant, puis réessayez.", "The assistant is unavailable right now. Call +263 242 000 000 or email support@swiftwave.app.": "L'assistant est indisponible pour le moment. Appelez le +263 242 000 000 ou écrivez à support@swiftwave.app."};
+const trCI=x=>{const k=Object.keys(FR).find(k=>k.toLowerCase()===x.toLowerCase());return k?FR[k]:x};
+const lc1=x=>x.charAt(0).toLowerCase()+x.slice(1);
+const FR_RX=[
+  [/^Step (\d) of (\d)$/,(m,a,b)=>`Étape ${a} sur ${b}`],
+  [/^(Today|Yesterday), (\d\d:\d\d)$/,(m,a,b)=>`${FR[a]}, ${b}`],
+  [/^Notifications, (\d+) unread$/,(m,a)=>`Notifications, ${a} non lues`],
+  [/^(\d+) min ago$/,(m,a)=>`Il y a ${a} min`],[/^(\d+)h ago$/,(m,a)=>`Il y a ${a} h`],
+  [/^Balance last update on (.+)$/,(m,a)=>`Solde mis à jour à ${a}`],
+  [/^Transfer Fee (ZWD .+)$/,(m,a)=>`Frais de transfert ${a}`],
+  [/^Pay (ZWD .+)$/,(m,a)=>`Payer ${a}`],
+  [/^Insufficient balance in (.+?)\.(?: Available (ZWD .+)\.)?$/,(m,a,b)=>`Solde insuffisant : ${lc1(tr(a))}.${b?` Disponible : ${b}.`:''}`],
+  [/^Incorrect PIN\. (\d) attempts? left\.$/,(m,a)=>`Code PIN incorrect. ${a} tentative${a==='1'?'':'s'} restante${a==='1'?'':'s'}.`],
+  [/^Kindly enter the verification code sent to your mobile phone ending with (\d+)$/,(m,a)=>`Saisissez le code de vérification envoyé au mobile se terminant par ${a}`],
+  [/^Enter the CVV on the back of your (.+) ending (\d+) and your card PIN\.$/,(m,a,b)=>`Saisissez le CVV au dos de votre ${lc1(tr(a))} se terminant par ${b}, puis le code PIN de la carte.`],
+  [/^USD ([\d,.]+) sent to (.+) from your (.+)\. Transaction ID (\d+)\.$/,(m,a,b,c,d)=>`USD ${a} envoyés à ${b} depuis votre ${lc1(tr(c))}. ID de transaction ${d}.`],
+  [/^(.+) of (ZWD [\d,.]+) sent to (\S+) (\+263 \S+)\. Ref (\S+)\.$/,(m,a,b,c,d,e)=>`${tr(a)} de ${b} envoyé à ${c} ${d}. Réf. ${e}.`],
+  [/^(.+) sent you (ZWD [\d,.]+) to your (.+)\.$/,(m,a,b,c)=>`${a} vous a envoyé ${b} sur votre ${lc1(tr(c))}.`],
+  [/^(.+) sent to (Econet|NetOne|Telecel) (\+263 .+)$/,(m,a,b,c)=>`${tr(a)} envoyé à ${b} ${c}`],
+  [/^(Econet|NetOne|Telecel) (.+)$/,(m,a,b)=>`${a} ${tr(b)}`],
+  [/^(.+) top up$/,(m,a)=>`Recharge : ${lc1(tr(a))}`],
+  [/^Send money to (.+)$/,(m,a)=>`Envoyer de l'argent à ${a}`],
+  [/^Sending to (.+)$/,(m,a)=>`Envoi à ${a}`],
+  [/^Pick “(.+)” after OTP$/,(m,a)=>`Choisissez « ${tr(a)} » après l'OTP`],
+  [/^(.+) opens here$/,(m,a)=>`${tr(a)} s'ouvre ici`],
+  [/^(.+) isn't in this mock yet$/,(m,a)=>`${tr(a)} n'est pas encore disponible dans cette maquette`],
+  [/^New code sent to number ending (\d+)$/,(m,a)=>`Nouveau code envoyé au numéro se terminant par ${a}`],
+  [/^(.+) \((.+)\) will be removed from your saved receivers\.$/,(m,a,b)=>`${a} (${tr(b)}) sera retiré de vos bénéficiaires.`],
+  [/^(.+) will be removed from your saved receivers\.$/,(m,a)=>`${a} sera retiré de vos bénéficiaires.`],
+  [/^Hi (.*)! I'm the Swift Wave assistant\. How can I help you today\?$/,(m,a)=>`Bonjour ${a} ! Je suis l'assistant Swift Wave. Comment puis-je vous aider aujourd'hui ?`],
+  [/^(.+) — scanned\.jpg$/,(m,a)=>`${tr(a)} — numérisé.jpg`],
+  [/^(.+) \((xxxx[^)]*)\)$/,(m,a,b)=>`${tr(a)} (${b})`],
+  [/^Enter (.+)\.$/,(m,a)=>`Renseignez : ${lc1(trCI(a))}.`],
+  [/^Add your (.+)\.$/,(m,a)=>`Ajoutez : ${lc1(trCI(a))}.`],
+  [/^Complete: (.+)\.$/,(m,a)=>`À compléter : ${a.split(', ').map(x=>tr(x)).join(', ')}.`]
+];
+function tr(str){
+  if(S.lang!=='fr'||str==null)return str;
+  const t=String(str).trim(); if(!t)return str;
+  if(Object.prototype.hasOwnProperty.call(FR,t))return String(str).replace(t,FR[t]);
+  if(t.includes(' · '))return String(str).replace(t,t.split(' · ').map(x=>tr(x)).join(' · '));
+  for(const [rx,fn] of FR_RX){const m=t.match(rx);if(m)return String(str).replace(t,typeof fn==='function'?fn(...m):t.replace(rx,fn))}
+  return str;
+}
+const I18N_ATTRS=['placeholder','aria-label','title'];
+function trNode(n){
+  if(n.nodeType===3){const p=n.parentNode;if(!p||/^(SCRIPT|STYLE|TEXTAREA)$/.test(p.nodeName)||(p.closest&&p.closest('[data-notr]')))return;
+    if(n.__en===undefined||(n.nodeValue!==n.__en&&n.nodeValue!==n.__fr)){n.__en=n.nodeValue}
+    const v=S.lang==='fr'?tr(n.__en):n.__en; n.__fr=v; if(n.nodeValue!==v)n.nodeValue=v; return}
+  if(n.nodeType!==1)return;
+  if(n.nodeName==='OPTION'&&!n.hasAttribute('value'))n.setAttribute('value',n.textContent);
+  I18N_ATTRS.forEach(a=>{if(!n.hasAttribute(a))return;const k='data-en-'+a;
+    if(!n.hasAttribute(k)||(n.getAttribute(a)!==n.getAttribute(k)&&n.getAttribute(a)!==tr(n.getAttribute(k))))n.setAttribute(k,n.getAttribute(a));
+    const v=S.lang==='fr'?tr(n.getAttribute(k)):n.getAttribute(k);if(n.getAttribute(a)!==v)n.setAttribute(a,v)});
+  if(/^(SCRIPT|STYLE)$/.test(n.nodeName)||n.hasAttribute('data-notr'))return;
+  for(const c of n.childNodes)trNode(c);
+}
+const i18nObs=new MutationObserver(ms=>{for(const m of ms){if(m.type==='characterData')trNode(m.target);else m.addedNodes.forEach(trNode)}});
+function setLang(l){S.lang=l;document.documentElement.lang=l;trNode(document.body);renderLangBtn()}
+function renderLangBtn(){const b=document.getElementById('langBtn');if(!b)return;
+  b.innerHTML=(S.lang==='fr'?'<span class="flag" style="background:linear-gradient(90deg,#002395 0 33%,#fff 33% 66%,#ED2939 66%)"></span>FR'
+    :'<span class="flag" style="background:linear-gradient(#B22234 0 15%,#fff 15% 30%,#B22234 30% 45%,#fff 45% 60%,#B22234 60% 75%,#fff 75% 90%,#B22234 90%);position:relative"><span style="position:absolute;left:0;top:0;width:45%;height:55%;background:#3C3B6E"></span></span>ENG')
+    +'<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="m7 16-4-4 4-4M17 8l4 4-4 4M3 12h18"/></svg>'}
+
+/* ================= Data (from Swift Wave catalogue) ================= */
+const RATE = 361.9;               // 1 USD = 361.900 ZWD
+const ACCOUNTS = [
+  {id:'wallet', name:'Wallet', mask:'xxxx xxxx 12346', bal:4000.25, cur:'ZWD'},
+  {id:'sav',  name:'Savings Account', mask:'xxxx xxxx 12345', bal:500000, cur:'ZWD'},
+  {id:'card', name:'Swift Wave Card', mask:'xxxx xxxx 12344', bal:200000, cur:'ZWD'}
+];
+const METHODS = [
+  {id:'bank',    name:'Bank Account', fee:5, ic:'bank'},
+  {id:'mobile',  name:'Mobile Money', fee:5, ic:'phone'},
+  {id:'cash',    name:'Cash Pickup',  fee:5, ic:'cash'},
+  {id:'voucher', name:'Voucher',      fee:5, ic:'tag'}
+];
+const REG_TYPES = [
+  {id:'citizen',   name:'Citizen',   desc:'I hold a national identity document', ic:'idcard', bg:'#E6FBF7', fg:'#0FB396'},
+  {id:'foreigner', name:'Foreigner', desc:'I hold a foreign passport or permit',  ic:'globe',  bg:'#E7F1FD', fg:'#1F7FE3'},
+  {id:'immigrant', name:'Immigrant', desc:'I am relocating and seeking residency', ic:'plane', bg:'#EEEFFE', fg:'#5B63E8'}
+];
+/* ---- Registration requirements per type (Zimbabwe KYC practice) ---- */
+const PROVINCES=['Harare','Bulawayo','Manicaland','Mashonaland Central','Mashonaland East','Mashonaland West','Masvingo','Matabeleland North','Matabeleland South','Midlands'];
+const NATS=['Botswana','China','DR Congo','India','Kenya','Malawi','Mozambique','Nigeria','South Africa','United Kingdom','United States','Zambia','Other'];
+const SOF=['Salary / employment','Business income','Remittances from family','Pension','Savings','Other'];
+const POR_TYPES=['Utility bill (ZESA, water, TelOne)','Bank statement','Lease agreement','Letter from employer','Affidavit from landlord','Letter from councillor / village head'];
+const F={
+  first:{k:'first',l:'First name',t:'text',req:1,g:'Personal details',ac:'given-name'},
+  last:{k:'last',l:'Surname',t:'text',req:1,g:'Personal details',ac:'family-name'},
+  dob:{k:'dob',l:'Date of birth',t:'date',req:1,v:'adult',g:'Personal details',hint:'You must be 18 or older'},
+  gender:{k:'gender',l:'Gender',t:'select',o:['Female','Male'],req:1,g:'Personal details'},
+  email:{k:'email',l:'Email (optional)',t:'email',v:'email',g:'Personal details',hint:'For e-statements and alerts'},
+  addr:{k:'addr',l:'Residential address',t:'text',ph:'House number and street',req:1,g:'Address'},
+  city:{k:'city',l:'City / Town',t:'text',req:1,g:'Address'},
+  prov:{k:'prov',l:'Province',t:'select',o:PROVINCES,req:1,g:'Address'},
+  occ:{k:'occ',l:'Occupation',t:'text',req:1,g:'Employment & funds'},
+  sof:{k:'sof',l:'Source of funds',t:'select',o:SOF,req:1,g:'Employment & funds'}
+};
+const REG_FIELDS={
+  citizen:[F.first,F.last,F.dob,F.gender,
+    {k:'nid',l:'National ID number',t:'text',ph:'e.g. 63-123456A42',req:1,v:'zwid',g:'Identity',hint:'As printed on your national ID'},
+    F.email,F.addr,F.city,F.prov,F.occ,F.sof],
+  foreigner:[F.first,F.last,F.dob,F.gender,
+    {k:'nat',l:'Nationality',t:'select',o:NATS,req:1,g:'Identity'},
+    {k:'pp',l:'Passport number',t:'text',req:1,v:'pp',g:'Identity'},
+    {k:'ppx',l:'Passport expiry date',t:'date',req:1,v:'future',g:'Identity'},
+    {k:'ptype',l:'Permit / visa type',t:'select',o:['Temporary Employment Permit','Residence Permit','Student Permit','Retired Persons Residence Permit','Investor / Business Permit','Visitor visa'],req:1,g:'Identity',re:1},
+    {k:'pno',l:'Permit / visa number',t:'text',req:1,g:'Identity'},
+    {k:'pexp',l:'Permit / visa expiry date',t:'date',req:1,v:'future',g:'Identity'},
+    {...F.addr,l:'Address in Zimbabwe'},F.city,F.prov,F.email,
+    {k:'emp',l:'Employer / institution',t:'text',req:1,g:'Employment & funds',when:d=>['Temporary Employment Permit','Student Permit'].includes(d.ptype)},
+    F.occ,F.sof],
+  immigrant:[F.first,F.last,F.dob,F.gender,
+    {k:'origin',l:'Country of origin',t:'select',o:NATS,req:1,g:'Identity'},
+    {k:'status',l:'Current status',t:'select',o:['Residence permit application pending','Asylum seeker','Recognised refugee'],req:1,g:'Identity',re:1},
+    {k:'idtype',l:'Identity document',t:'select',o:['Passport','Refugee ID','Asylum seeker permit'],req:1,g:'Identity',re:1},
+    {k:'idno',l:'Document number',t:'text',req:1,g:'Identity'},
+    {k:'idx',l:'Document expiry date',t:'date',req:1,v:'future',g:'Identity'},
+    {k:'appref',l:'Application / file reference number',t:'text',req:1,g:'Identity',hint:'From your immigration or refugee office receipt'},
+    {k:'arr',l:'Date of arrival in Zimbabwe',t:'date',req:1,v:'past',g:'Identity'},
+    {...F.addr,l:'Current address'},F.city,F.prov,F.email,F.occ,F.sof]
+};
+const POR={k:'por',l:'Proof of residence',hint:'Not older than 3 months',sel:POR_TYPES,other:1};
+const AFF={k:'aff',l:'Sworn affidavit and the owner\'s ID',hint:'Needed because the proof of residence is in someone else\'s name',when:d=>d.porOther};
+const REG_DOCS={
+  citizen:[{k:'idf',l:'National ID (front)'},{k:'idb',l:'National ID (back)'},POR,AFF],
+  foreigner:[{k:'pp',l:'Passport photo page'},{k:'permit',l:d=>d.ptype||'Permit or visa',hint:'Must be valid'},{...POR,l:'Proof of residence in Zimbabwe'},
+    {k:'empl',l:'Letter from employer',when:d=>d.ptype==='Temporary Employment Permit'},
+    {k:'enrol',l:'Proof of enrolment',when:d=>d.ptype==='Student Permit'},AFF],
+  immigrant:[{k:'idd',l:d=>d.idtype||'Identity document'},
+    {k:'app',l:d=>d.status==='Recognised refugee'?'Refugee status letter':d.status==='Asylum seeker'?'Asylum registration slip':'Immigration application receipt',hint:'Shows your application or status reference'},
+    {...POR,l:'Proof of address',hint:'Lease, host letter, affidavit or settlement letter',sel:['Lease agreement','Letter from host / sponsor','Affidavit from landlord','Refugee settlement letter','Utility bill']},AFF]
+};
+const lbl=(x,d)=>typeof x.l==='function'?x.l(d):x.l;
+const RECEIVER_FIELDS = {
+  bank:    [['acct','Account Number','Enter account number'],['rname','Receiver Name','Enter receiver name'],['bank','Receiving Bank',['CBZ Bank','Stanbic Bank','FBC Bank','Steward Bank']],['swift','SWIFT / IBAN','Enter SWIFT or IBAN']],
+  mobile:  [['msisdn','Mobile Number','+263 7x xxx xxxx'],['rname','Receiver Name','Enter receiver name'],['provider','Mobile Money Provider',['EcoCash','OneMoney','Telecash']]],
+  cash:    [['rname','Receiver Name','Enter receiver name'],['msisdn','Receiver Mobile Number','+263 7x xxx xxxx'],['loc','Pickup Location',['Harare CBD','Bulawayo','Mutare','Gweru']]],
+  voucher: [['rname','Receiver Name','Enter receiver name'],['msisdn','Receiver Mobile Number','+263 7x xxx xxxx']]
+};
+let benSeq=10;
+const SAVED = [
+  {id:1, method:'bank',    nick:'Nina (CBZ)',  rname:'Nina Michel',   acct:'1234 5678 12333', bank:'CBZ Bank', swift:'12154444', fav:true},
+  {id:2, method:'mobile',  nick:'',            rname:'Nina Michel',   msisdn:'+263 77 123 4055', provider:'EcoCash'},
+  {id:3, method:'cash',    nick:'Mum',         rname:'Rudo Chikore',  msisdn:'+263 71 555 0192', loc:'Mutare'},
+  {id:4, method:'voucher', nick:'',            rname:'Farai Ncube',   msisdn:'+263 78 220 7741'}
+];
+const LABELS = {acct:'Account Number',rname:'Name',bank:'Bank Name',swift:'Swift Code',msisdn:'Mobile Number',provider:'Provider',loc:'Pickup Location'};
+
+/* ================= State ================= */
+const S = {
+  phone:'', cc:'+263', reg:null, rd:{}, docs:{}, hide:false, timer:null, profile:{first:'Karlos',last:''}, lastUpd:new Date(), bump:false,
+  send:{zwd:'', usd:'', from:null, method:null, rcv:{}, save:true, id:''},
+  notifs:[
+    {id:1,title:'Money received',body:'Nina Michel sent you ZWD 5.00 to your Savings Account.',ic:'cash',go:'history',ago:'2h ago',read:false},
+    {id:2,title:'Refer & Earn',body:'Invite your friends and get a reward of 3 GB of mobile data.',ic:'gift',go:'home',ago:'Yesterday',read:false},
+    {id:3,title:'Security tip',body:'Never share your PIN or OTP with anyone, including Swift Wave staff.',ic:'shield',go:null,ago:'2 days ago',read:true}
+  ],
+  txns:[]
+};
+
+/* ================= Icons ================= */
+const P = {
+  home:'<path d="M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/>',
+  send:'<path d="M22 2 11 13"/><path d="M22 2 15 22l-4-9-9-4z"/>',
+  tag:'<path d="M20.6 13.4 13.4 20.6a2 2 0 0 1-2.8 0L3 13V3h10l7.6 7.6a2 2 0 0 1 0 2.8z"/><circle cx="7.5" cy="7.5" r="1.5"/>',
+  loan:'<path d="M20 7H5a2 2 0 0 1 0-4h13v4"/><path d="M3 5v14a2 2 0 0 0 2 2h15V7"/><circle cx="16" cy="14" r="1.5"/>',
+  user:'<circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/>',
+  bell:'<path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/>',
+  eye:'<path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/>',
+  eyeOff:'<path d="M17.9 17.9A10 10 0 0 1 12 19c-6.5 0-10-7-10-7a18 18 0 0 1 4.1-5.1M9.9 5.2A9 9 0 0 1 12 5c6.5 0 10 7 10 7a18 18 0 0 1-2.2 3.2"/><path d="m2 2 20 20"/>',
+  bank:'<path d="M3 21h18M5 21V10M19 21V10M9 21V10M15 21V10M2 10l10-6 10 6z"/>',
+  phone:'<rect x="6" y="2" width="12" height="20" rx="2"/><path d="M11 18h2"/>',
+  cash:'<rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="2.5"/><path d="M6 12h.01M18 12h.01"/>',
+  transfer:'<path d="M7 7h13l-4-4M17 17H4l4 4"/>',
+  pay:'<rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20M6 15h4"/>',
+  topup:'<rect x="6" y="2" width="12" height="20" rx="2"/><path d="M12 8v6M9 11h6"/>',
+  history:'<path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5M12 7v5l3 2"/>',
+  back:'<path d="m15 18-6-6 6-6"/>', chev:'<path d="m9 18 6-6-6-6"/>', down:'<path d="M12 5v14M5 12l7 7 7-7"/>',
+  lock:'<rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/>',
+  image:'<rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-5-5L5 21"/>',
+  scan:'<path d="M3 7V5a2 2 0 0 1 2-2h2M17 3h2a2 2 0 0 1 2 2v2M21 17v2a2 2 0 0 1-2 2h-2M7 21H5a2 2 0 0 1-2-2v-2M7 12h10"/>',
+  check:'<path d="M20 6 9 17l-5-5"/>', checkc:'<circle cx="12" cy="12" r="10"/><path d="m8 12 3 3 5-6"/>',
+  idcard:'<rect x="2" y="5" width="20" height="14" rx="2"/><circle cx="8" cy="12" r="2"/><path d="M14 10h4M14 14h4"/>',
+  globe:'<circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15 15 0 0 1 0 20M12 2a15 15 0 0 0 0 20"/>',
+  plane:'<path d="M2 16l20-8-8 14-2-6z"/><path d="m12 16-4 4"/>',
+  logout:'<path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/>',
+  share:'<circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="m8.6 13.5 6.8 4M15.4 6.5l-6.8 4"/>',
+  gift:'<rect x="3" y="8" width="18" height="4" rx="1"/><path d="M12 8v13M19 12v9H5v-9M7.5 8a2.5 2.5 0 0 1 0-5C11 3 12 8 12 8s1-5 4.5-5a2.5 2.5 0 0 1 0 5"/>',
+  refresh:'<path d="M21 12a9 9 0 1 1-3-6.7L21 8"/><path d="M21 3v5h-5"/>',
+  plus:'<circle cx="12" cy="12" r="10"/><path d="M12 8v8M8 12h8"/>',
+  shield:'<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/>',
+  camera:'<path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3z"/><circle cx="12" cy="13" r="3"/>',
+  search:'<circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/>',
+  star:'<path d="m12 2 3.1 6.3 6.9 1-5 4.9 1.2 6.8L12 17.8 5.8 21l1.2-6.8-5-4.9 6.9-1z"/>',
+  edit:'<path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/>',
+  trash:'<path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6M10 11v6M14 11v6"/>',
+  users:'<circle cx="9" cy="8" r="4"/><path d="M2 21a7 7 0 0 1 14 0M16 3.5a4 4 0 0 1 0 8M22 21a7 7 0 0 0-4-6.3"/>',
+  key:'<circle cx="7.5" cy="15.5" r="5.5"/><path d="m21 2-9.6 9.6M15.5 7.5l3 3L22 7l-3-3"/>',
+  sliders:'<path d="M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3M1 14h6M9 8h6M17 16h6"/>',
+  help:'<circle cx="12" cy="12" r="10"/><path d="M9.1 9a3 3 0 0 1 5.8 1c0 2-3 3-3 3M12 17h.01"/>',
+  info:'<circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/>',
+  mail:'<rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 6-10 7L2 6"/>',
+  chat:'<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>',
+  sun:'<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>',
+  route:'<circle cx="6" cy="19" r="3"/><circle cx="18" cy="5" r="3"/><path d="M9 19h8.5a3.5 3.5 0 0 0 0-7h-11a3.5 3.5 0 0 1 0-7H15"/>',
+  user2:'<circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/>'
+};
+const ic = n => `<svg class="i" viewBox="0 0 24 24" aria-hidden="true">${P[n]||''}</svg>`;
+const LOGO = `<svg viewBox="0 0 48 40" aria-hidden="true"><path d="M4 4l22 16-22 16 6-16z" fill="url(#swg)" opacity=".55"/><path d="M14 4l22 16-22 16 6-16z" fill="url(#swg)"/></svg>swiftwave`;
+const FLAG_ZW = `<span class="flag" style="background:linear-gradient(#319208 0 14%,#FFD200 14% 28%,#DE2010 28% 42%,#000 42% 58%,#DE2010 58% 72%,#FFD200 72% 86%,#319208 86%)"></span>`;
+const FLAG_US = `<span class="flag" style="background:linear-gradient(#B22234 0 15%,#fff 15% 30%,#B22234 30% 45%,#fff 45% 60%,#B22234 60% 75%,#fff 75% 90%,#B22234 90%);position:relative"><span style="position:absolute;left:0;top:0;width:45%;height:55%;background:#3C3B6E"></span></span>`;
+const FACE = `<svg viewBox="0 0 200 260" aria-hidden="true"><rect width="200" height="260" fill="#F7D5C2"/><ellipse cx="100" cy="250" rx="90" ry="60" fill="#2DDCC0"/><rect x="82" y="160" width="36" height="40" fill="#7A4A30"/><ellipse cx="100" cy="115" rx="52" ry="62" fill="#8A5636"/><path d="M48 100c0-40 25-58 52-58s52 18 52 58c-10-18-30-26-52-26s-42 8-52 26z" fill="#2B1A12"/><circle cx="80" cy="115" r="5" fill="#2B1A12"/><circle cx="120" cy="115" r="5" fill="#2B1A12"/><path d="M80 145q20 18 40 0" stroke="#fff" stroke-width="6" fill="#fff" stroke-linecap="round"/></svg>`;
+
+const $ = s => document.querySelector(s);
+const fmt = n => Number(n||0).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
+const mask = v => S.hide ? '••••••' : v;
+const esc = s => String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+function toast(msg){const t=document.createElement('div');t.className='toast';t.textContent=msg;document.body.appendChild(t);setTimeout(()=>t.remove(),2200)}
+function hydrate(root=document){
+  root.querySelectorAll('[data-ic]').forEach(e=>{e.outerHTML=ic(e.dataset.ic)});
+  root.querySelectorAll('[data-logo]').forEach(e=>{e.innerHTML=LOGO;e.removeAttribute('data-logo')});
+}
+function stopCam(){clearTimeout(S.sTo);if(S.stream){S.stream.getTracks().forEach(t=>t.stop());S.stream=null}}
+function stopTimer(){ if(S.timer){clearInterval(S.timer);S.timer=null} }
+
+/* ================= Code-box component ================= */
+function boxes(id,n=6,type='text'){return `<div class="code" id="${id}">${Array.from({length:n},(_,i)=>`<input type="${type}" inputmode="numeric" maxlength="1" aria-label="Digit ${i+1}" autocomplete="one-time-code">`).join('')}</div>`}
+function bindCode(el,onChange){
+  const ins=[...el.querySelectorAll('input')];
+  const val=()=>ins.map(i=>i.value).join('');
+  ins.forEach((inp,i)=>{
+    inp.addEventListener('input',()=>{inp.value=inp.value.replace(/\D/g,'').slice(-1);if(inp.value&&ins[i+1])ins[i+1].focus();onChange(val())});
+    inp.addEventListener('keydown',e=>{if(e.key==='Backspace'&&!inp.value&&ins[i-1]){ins[i-1].focus()}});
+    inp.addEventListener('paste',e=>{e.preventDefault();const d=(e.clipboardData.getData('text')||'').replace(/\D/g,'').slice(0,ins.length);d.split('').forEach((c,k)=>ins[k].value=c);(ins[d.length]||ins[ins.length-1]).focus();onChange(val())});
+  });
+  return {val,clear:()=>{ins.forEach(i=>i.value='');ins[0].focus()},setType:t=>ins.forEach(i=>i.type=t)};
+}
+
+/* ================= OTP (shared by signup + send money) ================= */
+function otpView(onDone, backFn){
+  const end = (S.phone.replace(/\D/g,'').slice(-3)) || '055';
+  return {
+    html:`${backFn?`<button class="back" id="bk">${ic('back')}Back</button>`:''}
+      <div class="center"><div class="badge-ic">${ic('lock')}</div>
+      <h2>OTP Verification</h2>
+      <p class="lead" style="margin-bottom:0">Kindly enter the verification code sent to your mobile phone ending with ${end}</p>
+      ${boxes('otp')}
+      <p class="small muted" style="margin:0 0 8px">Didn't receive code? <span id="rs">Resend in <b style="color:var(--teal-d)" id="tm">0:50</b></span></p>
+      <button class="btn outline sm" id="resend" disabled>Resend</button>
+      <div style="height:22px"></div>
+      <button class="btn primary" id="otpGo" disabled>Submit</button>
+      <p class="small muted" style="margin:10px 0 0">Demo: enter any 6 digits</p></div>`,
+    bind(root){
+      if(backFn) root.querySelector('#bk').onclick=backFn;
+      const go=root.querySelector('#otpGo');
+      const c=bindCode(root.querySelector('#otp'),v=>go.disabled=v.length<6);
+      root.querySelector('#otp input').focus();
+      let t=50; stopTimer();
+      const tick=()=>{t--; const tm=root.querySelector('#tm'); if(!tm){stopTimer();return}
+        if(t<=0){stopTimer();root.querySelector('#rs').textContent='You can request a new code now.';root.querySelector('#resend').disabled=false}
+        else tm.textContent=`0:${String(t).padStart(2,'0')}`};
+      S.timer=setInterval(tick,1000);
+      root.querySelector('#resend').onclick=()=>{toast(`New code sent to number ending ${end}`);c.clear();root.querySelector('#resend').disabled=true;t=51;
+        root.querySelector('#rs').innerHTML='Resend in <b style="color:var(--teal-d)" id="tm">0:50</b>';stopTimer();S.timer=setInterval(tick,1000)};
+      go.onclick=()=>{stopTimer();onDone()};
+    }
+  };
+}
+
+/* ================= Notifications ================= */
+let nid=10, simulated=false;
+function ago(n){if(n.ago)return n.ago;const m=Math.floor((Date.now()-n.t)/60000);return m<1?'Just now':m<60?`${m} min ago`:`${Math.floor(m/60)}h ago`}
+function notify(title,body,icn='bell',go=null,silent=false){
+  const cat=icn==='gift'?'promo':icn==='shield'?'security':'tx'; if(S.nset&&!S.nset[cat])return;
+  S.notifs.unshift({id:nid++,title,body,ic:icn,go,t:Date.now(),read:false});
+  renderBell(); if(current==='notifications')showApp('notifications'); if(!silent)toast(title);
+}
+function unread(){return S.notifs.filter(n=>!n.read).length}
+function nItem(n){return `<button class="nitem ${n.read?'':'unread'}" data-nid="${n.id}"><span class="nic">${ic(n.ic)}</span>
+  <span class="nb"><b>${esc(n.title)}</b><p>${esc(n.body)}</p><time>${ago(n)}</time></span>${n.read?'':'<span class="udot" aria-label="Unread"></span>'}</button>`}
+function renderBell(){
+  const u=unread(),b=$('#nbadge'); b.textContent=u>9?'9+':u; b.classList.toggle('hidden',!u);
+  $('#bell').setAttribute('aria-label',tr(`Notifications, ${u} unread`));
+  const p=$('#npanel'); if(p.classList.contains('hidden'))return;
+  p.innerHTML=`<div class="nh"><b>Notifications</b><button class="link small" id="markAll" ${u?'':'disabled style="opacity:.4"'}>Mark all as read</button></div>
+    <div class="nlist">${S.notifs.length?S.notifs.slice(0,6).map(nItem).join(''):'<div class="nempty">You\'re all caught up.</div>'}</div>
+    <div class="nfoot"><button class="link small" id="nAll">View all notifications</button></div>`;
+}
+function openPanel(open){const p=$('#npanel');p.classList.toggle('hidden',!open);$('#bell').setAttribute('aria-expanded',open);if(open)renderBell()}
+function openNotif(id){const n=S.notifs.find(x=>x.id===id);if(!n)return;n.read=true;openPanel(false);renderBell();
+  if(n.go){if(n.go==='send'){resetSend();showApp('sendMethod')}else showApp(n.go)}else if(current==='notifications')showApp('notifications')}
+document.addEventListener('click',e=>{
+  if(e.target.closest('#bell')){openPanel($('#npanel').classList.contains('hidden'));return}
+  const it=e.target.closest('[data-nid]'); if(it){openNotif(+it.dataset.nid);return}
+  if(e.target.closest('#markAll')){S.notifs.forEach(n=>n.read=true);renderBell();if(current==='notifications')showApp('notifications');return}
+  if(e.target.closest('#nAll')){openPanel(false);showApp('notifications');return}
+  if(!e.target.closest('#nwrap'))openPanel(false);
+});
+document.addEventListener('keydown',e=>{if(e.key==='Escape')openPanel(false)});
+
+/* ================= AUTH SCREENS ================= */
+const A = {
+  welcome(){
+    return {html:`<h2>Enter Your Phone Number</h2>
+      <p class="lead">Register with <b>country code</b> &amp; <b>phone number</b>.</p>
+      <div class="field"><div class="phone-row">
+        <select class="input" id="cc" aria-label="Country code">
+          <option value="+263">🇿🇼 +263</option><option value="+27">🇿🇦 +27</option><option value="+254">🇰🇪 +254</option><option value="+234">🇳🇬 +234</option><option value="+20">🇪🇬 +20</option>
+        </select>
+        <input class="input" id="ph" inputmode="tel" placeholder="Your Phone Number" value="${esc(S.phone)}">
+      </div><div class="err" id="phErr"></div></div>
+      <button class="btn primary" id="go">Let's Get Started</button>
+      <p class="foot-line">Already have an account? <button class="link" id="toLogin">Login</button></p>`,
+    bind(r){
+      r.querySelector('#cc').value=S.cc;
+      r.querySelector('#toLogin').onclick=()=>showAuth('login');
+      const submit=()=>{const v=r.querySelector('#ph').value.replace(/\D/g,'');
+        if(v.length<7||v.length>12){r.querySelector('#phErr').textContent='Enter a valid phone number (7–12 digits).';return}
+        S.phone=v;S.cc=r.querySelector('#cc').value;showAuth('otp')};
+      r.querySelector('#go').onclick=submit;
+      r.querySelector('#ph').onkeydown=e=>{if(e.key==='Enter')submit()};
+    }};
+  },
+  login(){
+    return {html:`<div class="center" style="margin-bottom:22px"><span class="logo" data-logo></span><p class="muted small" style="margin:6px 0 0">Sign in to your account</p></div>
+      <div class="field"><label for="un">Mobile Number</label><div class="phone-row">
+        <select class="input" id="lcc" aria-label="Country code"><option value="+263">🇿🇼 +263</option><option value="+27">🇿🇦 +27</option><option value="+254">🇰🇪 +254</option><option value="+234">🇳🇬 +234</option><option value="+20">🇪🇬 +20</option></select>
+        <input class="input" id="un" inputmode="tel" placeholder="Your mobile number" autocomplete="tel-national" value="${esc(S.phone)}"></div></div>
+      <div class="field"><label for="pw">Password</label><div class="input-wrap">${ic('lock')}<input class="input" id="pw" type="password" placeholder="Enter your password" autocomplete="current-password">
+        <button class="eye" id="eye" aria-label="Show password">${ic('eye')}</button></div>
+        <div class="field-foot"><button class="link" data-fp>Forgot password?</button></div></div>
+      <div class="err" id="lgErr" style="margin:-6px 0 10px"></div>
+      <button class="btn primary" id="go">Login</button>
+      <p class="foot-line">Don't have an account? <button class="link" id="toSign">Sign up</button></p>`,
+    bind(r){
+      hydrate(r);
+      r.querySelector('#toSign').onclick=()=>showAuth('welcome');
+      r.querySelectorAll('[data-fp]').forEach(b=>b.onclick=()=>{const v=r.querySelector('#un').value.replace(/\D/g,'');if(v)S.phone=v;S.cc=r.querySelector('#lcc').value;S.fp={tries:0};showAuth('forgot')});
+      const pw=r.querySelector('#pw');
+      r.querySelector('#eye').onclick=()=>{const s=pw.type==='password';pw.type=s?'text':'password';r.querySelector('#eye').innerHTML=ic(s?'eyeOff':'eye')};
+      r.querySelector('#lcc').value=S.cc;
+      const go=()=>{const v=r.querySelector('#un').value.replace(/\D/g,''),e=r.querySelector('#lgErr');
+        if(v.length<7||v.length>12){e.textContent='Enter a valid mobile number (7–12 digits).';return}
+        if(!pw.value){e.textContent='Enter your password.';return}
+        S.phone=v;S.cc=r.querySelector('#lcc').value;enterApp('login')};
+      r.querySelector('#un').onkeydown=e=>{if(e.key==='Enter')go()};
+      r.querySelector('#go').onclick=go; pw.onkeydown=e=>{if(e.key==='Enter')go()};
+    }};
+  },
+  otp(){ return otpView(()=>showAuth('regType'),()=>showAuth('welcome')) },
+  forgot(){
+    return {html:`<button class="back" id="bk">${ic('back')}Back</button>
+      <div class="center"><div class="badge-ic">${ic('key')}</div></div>
+      <p class="stepline center">Step 1 of 4</p>
+      <h2 class="center">Reset your password</h2>
+      <p class="lead center">Enter the mobile number linked to your account. We'll send you a verification code.</p>
+      <div class="field"><label for="fpn">Mobile Number</label><div class="phone-row">
+        <select class="input" id="fcc" aria-label="Country code"><option value="+263">🇿🇼 +263</option><option value="+27">🇿🇦 +27</option><option value="+254">🇰🇪 +254</option><option value="+234">🇳🇬 +234</option><option value="+20">🇪🇬 +20</option></select>
+        <input class="input" id="fpn" inputmode="tel" placeholder="Your mobile number" value="${esc(S.phone)}"></div><div class="err" id="fErr"></div></div>
+      <button class="btn primary" id="go">Send code</button>`,
+    bind(r){
+      r.querySelector('#fcc').value=S.cc;
+      r.querySelector('#bk').onclick=()=>showAuth('login');
+      const go=()=>{const v=r.querySelector('#fpn').value.replace(/\D/g,'');
+        if(v.length<7||v.length>12){r.querySelector('#fErr').textContent='Enter a valid mobile number (7–12 digits).';return}
+        S.phone=v;S.cc=r.querySelector('#fcc').value;showAuth('forgotOtp')};
+      r.querySelector('#go').onclick=go;r.querySelector('#fpn').onkeydown=e=>{if(e.key==='Enter')go()};
+    }};
+  },
+  forgotOtp(){
+    const o=otpView(()=>showAuth('forgotPin'),()=>showAuth('forgot'));
+    return {html:`<p class="stepline center" style="margin-bottom:-14px;position:relative;top:34px">Step 2 of 4</p>${o.html}`,bind:o.bind};
+  },
+  forgotPin(){
+    return {html:`<button class="back" id="bk">${ic('back')}Back</button>
+      <div class="center"><div class="badge-ic">${ic('lock')}</div>
+      <p class="stepline">Step 3 of 4</p>
+      <h2>Confirm your PIN</h2>
+      <p class="lead" style="margin-bottom:0">Enter your 6-digit transaction PIN to confirm it's you.</p>
+      ${boxes('fp',6,'password')}
+      <div class="err" id="fpErr" style="margin-bottom:10px"></div>
+      <button class="btn primary" id="go" disabled>Continue</button>
+      <p class="small muted" style="margin:10px 0 0">${S.pin?'Demo: use the PIN you set at registration':'Demo: any 6 digits except 000000'}</p></div>`,
+    bind(r){
+      r.querySelector('#bk').onclick=()=>showAuth('forgotOtp');
+      const go=r.querySelector('#go'),err=r.querySelector('#fpErr');
+      const c=bindCode(r.querySelector('#fp'),v=>{err.textContent='';go.disabled=v.length<6});
+      r.querySelector('#fp input').focus();
+      go.onclick=()=>{const v=c.val();
+        if((S.pin&&v!==S.pin)||(!S.pin&&v==='000000')){S.fp.tries++;c.clear();go.disabled=true;
+          if(S.fp.tries>=3){err.textContent='Too many incorrect attempts. Your reset is locked for 30 minutes. Contact support for help.';
+            r.querySelector('#fp').querySelectorAll('input').forEach(i=>i.disabled=true);return}
+          err.textContent=`Incorrect PIN. ${3-S.fp.tries} attempt${3-S.fp.tries===1?'':'s'} left.`;return}
+        showAuth('forgotNew')};
+    }};
+  },
+  forgotNew(){
+    const rules=[['len','At least 8 characters',v=>v.length>=8],['let','A letter',v=>/[A-Za-z]/.test(v)],['num','A number',v=>/\d/.test(v)],['sym','A special character',v=>/[^A-Za-z0-9]/.test(v)]];
+    return {html:`<button class="back" id="bk">${ic('back')}Back</button>
+      <p class="stepline">Step 4 of 4</p>
+      <h2>Create a new password</h2><p class="lead">Use a password you haven't used before.</p>
+      <div class="field"><label for="np1">New password</label><div class="input-wrap">${ic('lock')}<input class="input" id="np1" type="password" autocomplete="new-password" placeholder="Enter new password">
+        <button class="eye" id="eye" aria-label="Show password">${ic('eye')}</button></div>
+        <ul class="rules" id="rules">${rules.map(([k,l])=>`<li data-r="${k}">${ic('checkc')}${l}</li>`).join('')}</ul></div>
+      <div class="field"><label for="np2">Confirm new password</label><div class="input-wrap">${ic('lock')}<input class="input" id="np2" type="password" autocomplete="new-password" placeholder="Re-enter new password"></div></div>
+      <div class="err" id="npErr" style="margin:-6px 0 10px"></div>
+      <button class="btn primary" id="go" disabled>Reset password</button>`,
+    bind(r){
+      r.querySelector('#bk').onclick=()=>showAuth('forgotPin');
+      const p1=r.querySelector('#np1'),p2=r.querySelector('#np2'),go=r.querySelector('#go'),err=r.querySelector('#npErr');
+      const chk=()=>{let all=true;rules.forEach(([k,,f])=>{const ok=f(p1.value);all=all&&ok;r.querySelector(`[data-r="${k}"]`).classList.toggle('ok',ok)});err.textContent='';go.disabled=!(all&&p2.value)};
+      p1.oninput=p2.oninput=chk;
+      r.querySelector('#eye').onclick=()=>{const sh=p1.type==='password';p1.type=p2.type=sh?'text':'password';r.querySelector('#eye').innerHTML=ic(sh?'eyeOff':'eye')};
+      go.onclick=()=>{if(p1.value!==p2.value){err.textContent="Passwords don't match.";return}showAuth('forgotDone')};
+    }};
+  },
+  forgotDone(){
+    return {html:`<div class="center"><div class="success-ic">${ic('check')}</div>
+      <h2>Password reset</h2><p class="lead">Your password was changed. Sign in with your mobile number and new password.</p>
+      <button class="btn primary" id="go">Go to login</button></div>`,
+    bind(r){r.querySelector('#go').onclick=()=>{S.fp=null;S.pendingSec=true;showAuth('login')}}};
+  },
+  regType(){
+    return {html:`<button class="back" id="bk">${ic('back')}Back</button>
+      <h2>Registration Type</h2><p class="lead">Select your registration type to enjoy our services</p>
+      ${REG_TYPES.map(t=>`<button class="opt" data-t="${t.id}"><span class="oi" style="background:${t.bg};color:${t.fg}">${ic(t.ic)}</span>
+        <span class="ot"><b>${t.name}</b><span>${t.desc}</span></span><span class="chev">${ic('chev')}</span></button>`).join('')}
+      <p class="foot-line small">Not sure which type applies to you? <button class="link" id="help">Get help</button></p>`,
+    bind(r){
+      r.querySelector('#bk').onclick=()=>showAuth('otp');
+      r.querySelector('#help').onclick=()=>toast('Citizen: national ID · Foreigner: passport/permit · Immigrant: relocating');
+      r.querySelectorAll('[data-t]').forEach(b=>b.onclick=()=>{if(S.reg!==b.dataset.t){S.docs={};S.rd={};S.rErr=S.dErr=null}S.reg=b.dataset.t;showAuth('regDetails')});
+    }};
+  },
+  regDetails(){
+    const d=S.rd, fl=REG_FIELDS[S.reg].filter(f=>!f.when||f.when(d)), T=REG_TYPES.find(t=>t.id===S.reg);
+    let g='', first=true;
+    const field=f=>{let h='';if(f.g!==g){g=f.g;h+=`<div class="group-h ${first?'first':''}">${g}</div>`;first=false}
+      const val=esc(d[f.k]||''), err=S.rErr&&S.rErr[f.k];
+      const ctl=f.t==='select'?`<select class="input ${err?'bad':''}" id="f_${f.k}" data-f="${f.k}"><option value="">Select</option>${f.o.map(o=>`<option ${d[f.k]===o?'selected':''}>${o}</option>`).join('')}</select>`
+        :`<input class="input ${err?'bad':''}" id="f_${f.k}" data-f="${f.k}" type="${f.t}" value="${val}" placeholder="${f.ph||''}" ${f.ac?`autocomplete="${f.ac}"`:''}>`;
+      return h+`<div class="field"><label for="f_${f.k}">${f.l}${f.req?'':''}</label>${ctl}${err?`<div class="fld-err">${err}</div>`:f.hint?`<div class="hint">${f.hint}</div>`:''}</div>`};
+    return {html:`<button class="back" id="bk">${ic('back')}Back</button>
+      <p class="stepline">Step 1 of 2 · ${T.name}</p><h2>Your details</h2><p class="lead">Enter your details exactly as they appear on your documents.</p>
+      ${S.reg==='immigrant'?`<div class="notice">${ic('shield')}<span>Your account opens with lower transaction limits until your residency or refugee status is confirmed.</span></div>`:''}
+      ${fl.map(field).join('')}
+      <button class="btn primary" id="go">Next</button>
+      <button class="btn ghost" id="cancel">Cancel</button>`,
+    bind(r){
+      r.querySelector('#bk').onclick=()=>{S.rErr=null;showAuth('regType')};
+      r.querySelector('#cancel').onclick=()=>{S.rd={};S.docs={};S.rErr=null;showAuth('welcome')};
+      r.querySelectorAll('[data-f]').forEach(e=>{const f=fl.find(x=>x.k===e.dataset.f);
+        e.oninput=()=>{d[f.k]=e.value.trim()}; if(f.re)e.onchange=()=>{d[f.k]=e.value;showAuthKeep('regDetails')}});
+      r.querySelector('#go').onclick=()=>{
+        const today=new Date();today.setHours(0,0,0,0);const E={};
+        fl.forEach(f=>{const v=(d[f.k]||'').trim();
+          if(f.req&&!v){E[f.k]=`Enter ${f.l.toLowerCase().replace(' (optional)','')}.`;return} if(!v)return;
+          const dt=new Date(v+'T00:00');
+          if(f.v==='adult'){const a=new Date(dt);a.setFullYear(a.getFullYear()+18);if(a>today)E[f.k]='You must be 18 or older to register.'}
+          if(f.v==='future'&&dt<=today)E[f.k]='This document has expired. Use a valid document.';
+          if(f.v==='past'&&dt>today)E[f.k]='Date can\'t be in the future.';
+          if(f.v==='zwid'&&!/^\d{2}-?\d{6,7}\s?[A-Z]\s?\d{2}$/i.test(v))E[f.k]='Use the format 63-123456A42.';
+          if(f.v==='pp'&&!/^[A-Z0-9]{6,12}$/i.test(v))E[f.k]='Passport number should be 6–12 letters or digits.';
+          if(f.v==='email'&&!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v))E[f.k]='Enter a valid email address.';
+        });
+        S.rErr=Object.keys(E).length?E:null;
+        if(S.rErr){showAuthKeep('regDetails');const el=document.querySelector('#authCard .input.bad');if(el){el.scrollIntoView({block:'center'});el.focus()}return}
+        S.profile={first:d.first,last:d.last};showAuth('regDocs')};
+    }};
+  },
+  regDocs(){
+    const d=S.rd, list=REG_DOCS[S.reg].filter(x=>!x.when||x.when(d));
+    const slot=x=>{const k=x.k,L=lbl(x,d),err=S.dErr&&S.dErr[k];
+      return `<div class="field"><label>${L}</label>
+      ${x.sel?`<select class="input ${S.dErr&&S.dErr.porType?'bad':''}" id="porType" style="margin-bottom:8px"><option value="">Select document type</option>${x.sel.map(o=>`<option ${d.porType===o?'selected':''}>${o}</option>`).join('')}</select>`:''}
+      ${S.docs[k]
+      ?`<div class="doc-done"><span class="ok">${ic('checkc')}</span><span class="nm">${esc(S.docs[k])}</span><button class="link small" data-rm="${k}">Replace</button></div>`
+      :`<div class="doc-row"><label class="doc-btn" style="cursor:pointer">${ic('image')}Choose document<input type="file" accept="image/*,.pdf" data-file="${k}" hidden></label>
+        <button class="doc-btn" data-scan="${k}">${ic('scan')}Scan document</button></div>`}
+      ${err?`<div class="fld-err">${err}</div>`:x.hint?`<div class="hint">${x.hint}</div>`:''}
+      ${x.other?`<label class="chk"><input type="checkbox" id="porOther" ${d.porOther?'checked':''}>This document is in someone else's name</label>`:''}</div>`};
+    return {html:`<button class="back" id="bk">${ic('back')}Back</button>
+      <p class="stepline">Step 2 of 2 · ${REG_TYPES.find(t=>t.id===S.reg).name}</p><h2>Documents</h2>
+      <p class="lead">Upload clear photos or PDFs. All four corners must be visible.</p>
+      ${list.map(slot).join('')}
+      <button class="btn primary" id="go">Next</button>
+      <button class="btn ghost" id="cancel">Cancel</button>`,
+    bind(r){
+      r.querySelector('#bk').onclick=()=>{S.dErr=null;showAuth('regDetails')};
+      r.querySelector('#cancel').onclick=()=>{S.rd={};S.docs={};S.dErr=null;showAuth('welcome')};
+      const pt=r.querySelector('#porType'); if(pt)pt.onchange=()=>{d.porType=pt.value};
+      const po=r.querySelector('#porOther'); if(po)po.onchange=()=>{d.porOther=po.checked;if(!po.checked)delete S.docs.aff;showAuthKeep('regDocs')};
+      r.querySelectorAll('[data-file]').forEach(f=>f.onchange=()=>{if(f.files[0]){S.docs[f.dataset.file]=f.files[0].name;showAuthKeep('regDocs')}});
+      r.querySelectorAll('[data-scan]').forEach(b=>b.onclick=()=>{const x=list.find(y=>y.k===b.dataset.scan);b.textContent='Scanning…';
+        setTimeout(()=>{S.docs[x.k]=`${lbl(x,d)} — scanned.jpg`;showAuthKeep('regDocs')},900)});
+      r.querySelectorAll('[data-rm]').forEach(b=>b.onclick=()=>{delete S.docs[b.dataset.rm];showAuthKeep('regDocs')});
+      r.querySelector('#go').onclick=()=>{const E={};
+        list.forEach(x=>{if(!S.docs[x.k])E[x.k]=`Add your ${lbl(x,d).toLowerCase()}.`});
+        if(list.some(x=>x.sel)&&!d.porType)E.porType=1,E.por=E.por||'Select the type of proof of residence.';
+        S.dErr=Object.keys(E).length?E:null; if(S.dErr){showAuthKeep('regDocs');return}
+        showAuth('consent')};
+    }};
+  },
+  consent(){
+    return {html:`<button class="back" id="bk">${ic('back')}Back</button>
+      <h2 class="center">Consent</h2>
+      <p class="center" style="font-weight:600;font-size:17px;margin:6px 0 4px"><span style="color:var(--teal-d)">Swift</span> wants to access your personal data information.</p>
+      <p class="center small muted" style="margin:0">This will allow Swift to:</p>
+      <ul class="consent-list">
+        <li>${ic('checkc')}Process your personal details</li>
+        <li>${ic('checkc')}Process your contact information</li>
+        <li>${ic('checkc')}Process your document information</li>
+      </ul>
+      <div class="note">You can view Swift's privacy policies <button class="link small">here</button>.<br>By choosing "Allow" below, you grant Swift consent to process your personal data to offer you this service.</div>
+      <button class="btn primary" id="go">Allow</button>
+      <button class="btn ghost" id="cancel">Cancel</button>`,
+    bind(r){
+      r.querySelector('#bk').onclick=()=>showAuth('regDocs');
+      r.querySelector('#cancel').onclick=()=>showAuth('welcome');
+      r.querySelector('#go').onclick=()=>showAuth('selfie');
+    }};
+  },
+  selfie(){
+    return {html:`<button class="back" id="bk">${ic('back')}Back</button>
+      <div class="oval" id="ov"><div class="cam-ph" id="ph">${ic('camera')}<span>Camera is off</span></div>
+        <video id="cam" class="hidden" autoplay playsinline muted></video><div class="scanline hidden" id="sl"></div></div>
+      <h2 class="center" style="font-size:18px" id="sTitle">Take a Selfie</h2>
+      <p class="tip" id="sTip">${ic('sun')}Find good light and remove glasses or hats</p>
+      <div class="err center" id="camErr" style="margin:8px 0"></div>
+      <button class="btn primary" id="open" style="margin-top:12px">${ic('camera')}Open camera</button>
+      <button class="btn primary hidden" id="snap" style="margin-top:12px">Capture now</button>
+      <button class="btn ghost hidden" id="demoSelfie">Continue with demo selfie</button>`,
+    bind(r){
+      r.querySelector('#bk').onclick=()=>showAuth('consent');
+      const v=r.querySelector('#cam'),ov=r.querySelector('#ov'),err=r.querySelector('#camErr');
+      const capture=()=>{clearTimeout(S.sTo);if(!v.videoWidth)return;
+        const c=document.createElement('canvas');c.width=v.videoWidth;c.height=v.videoHeight;
+        const x=c.getContext('2d');x.translate(c.width,0);x.scale(-1,1);x.drawImage(v,0,0);
+        S.selfie=c.toDataURL('image/jpeg',.85);stopCam();showAuth('selfieReview')};
+      r.querySelector('#snap').onclick=capture;
+      r.querySelector('#demoSelfie').onclick=()=>{S.selfie=null;showAuth('selfieReview')};
+      r.querySelector('#open').onclick=async()=>{
+        err.textContent='';
+        if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){fail('This browser can\'t open the camera.');return}
+        r.querySelector('#open').disabled=true;r.querySelector('#open').lastChild.textContent='Opening camera…';
+        try{
+          S.stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:'user',width:{ideal:720},height:{ideal:960}},audio:false});
+          if(!document.body.contains(v)){stopCam();return}
+          v.srcObject=S.stream;await v.play().catch(()=>{});
+          r.querySelector('#ph').classList.add('hidden');v.classList.remove('hidden');r.querySelector('#sl').classList.remove('hidden');
+          r.querySelector('#open').classList.add('hidden');r.querySelector('#snap').classList.remove('hidden');
+          r.querySelector('#sTitle').textContent='Capturing Selfie, Please Stay Still';
+          r.querySelector('#sTip').innerHTML=`${ic('sun')}Put your face in the oval frame and wait until it turns blue`;
+          S.sTo=setTimeout(()=>{ov.classList.add('ready');r.querySelector('#sTip').innerHTML=`${ic('check')}Face detected — hold still`;S.sTo=setTimeout(capture,1200)},2800);
+        }catch(e){
+          const m=e&&e.name==='NotAllowedError'?'Camera access was blocked. Allow camera access in your browser\'s address bar, then try again.'
+            :e&&e.name==='NotFoundError'?'No camera found on this device.':'The camera couldn\'t start. Close other apps using it and try again.';
+          fail(m);
+        }
+      };
+      function fail(m){err.textContent=m;const o=r.querySelector('#open');o.disabled=false;o.lastChild.textContent='Try again';r.querySelector('#demoSelfie').classList.remove('hidden')}
+    }};
+  },
+  selfieReview(){
+    return {html:`<button class="back" id="bk">${ic('back')}Back</button>
+      <div class="selfie-rect">${S.selfie?`<img src="${S.selfie}" alt="Your selfie">`:FACE}</div>
+      <h2 class="center" style="font-size:20px">Is this a good quality selfie?</h2>
+      <p class="lead center">Make sure your whole face is visible and clear</p>
+      <button class="btn primary" id="go">Yes, use this</button>
+      <button class="btn ghost" id="retake">No, retake selfie</button>`,
+    bind(r){
+      r.querySelector('#bk').onclick=()=>showAuth('selfie');
+      r.querySelector('#retake').onclick=()=>{showAuth('selfie');document.querySelector('#authCard #open').click()};
+      r.querySelector('#go').onclick=()=>showAuth('pin');
+    }};
+  },
+  pin(){
+    return {html:`<button class="back" id="bk">${ic('back')}Back</button>
+      <h2 class="center">Set Your PIN</h2>
+      <p class="lead center" style="margin-bottom:4px">Enter 6 digit PIN to continue.</p>
+      <p class="center small" style="margin:0"><b>Note:</b> PIN shouldn't be 000000</p>
+      <p class="center small muted" style="margin:18px 0 -8px">Enter PIN</p>${boxes('p1',6,'password')}
+      <p class="center small muted" style="margin:6px 0 -8px">Re-enter PIN</p>${boxes('p2',6,'password')}
+      <div class="center" style="margin-bottom:12px"><button class="btn outline sm" id="show">${ic('eye')}Show PIN</button></div>
+      <div class="err center" id="pinErr" style="margin-bottom:10px"></div>
+      <button class="btn primary" id="go" disabled>Set PIN</button>`,
+    bind(r){
+      r.querySelector('#bk').onclick=()=>showAuth('selfieReview');
+      const go=r.querySelector('#go'), err=r.querySelector('#pinErr');
+      const chk=()=>{err.textContent='';go.disabled=!(a.val().length===6&&b.val().length===6)};
+      const a=bindCode(r.querySelector('#p1'),chk), b=bindCode(r.querySelector('#p2'),chk);
+      r.querySelector('#p1 input').focus();
+      let shown=false; r.querySelector('#show').onclick=e=>{shown=!shown;a.setType(shown?'text':'password');b.setType(shown?'text':'password');e.currentTarget.innerHTML=`${ic(shown?'eyeOff':'eye')}${shown?'Hide':'Show'} PIN`};
+      go.onclick=()=>{
+        if(a.val()==='000000'){err.textContent="PIN can't be 000000. Choose a different PIN.";a.clear();b.clear();return}
+        if(a.val()!==b.val()){err.textContent="PINs don't match. Re-enter your PIN.";b.clear();return}
+        S.pin=a.val();enterApp('signup')};
+    }};
+  }
+};
+
+function showAuthKeep(name){const y=$('#authCard').getBoundingClientRect().top,sy=window.scrollY;showAuth(name);window.scrollTo(0,sy)}
+function showAuth(name){
+  stopTimer(); stopCam();
+  $('#app').classList.add('hidden'); $('#auth').classList.remove('hidden');
+  const v=A[name](); const c=$('#authCard'); c.innerHTML=v.html; hydrate(c); v.bind&&v.bind(c);
+  window.scrollTo(0,0);
+}
+
+/* ================= APP SCREENS ================= */
+const NAV=[['home','Home','home'],['send','Send Money','send'],['topup','Top Up','topup'],['history','Transactions','history'],['mystuff','My Stuff','user']];
+let current='home';
+function renderNav(){
+  $('#sideNav').innerHTML=NAV.map(([k,l,i])=>`<button class="nav-btn ${navKey()===k?'act':''}" data-go="${k}">${ic(i)}${l}</button>`).join('');
+  $('#bottomNav').innerHTML=NAV.filter(n=>n[0]!=='history').map(([k,l,i])=>`<button class="nav-btn ${navKey()===k?'act':''}" data-go="${k}">${ic(i)}${l}</button>`).join('');
+}
+const STUFF=['chat','mystuff','profile','beneficiaries','benForm','security','notifSettings','prefs','help','about'];
+function navKey(){if(STUFF.includes(current))return 'mystuff';if(['topup','topupReview','topupSuccess'].includes(current)||(['sendOtp','cardAuth'].includes(current)&&S.flow==='topup'))return 'topup';
+  return ['sendMethod','sendType','send1','send2','review','sendOtp','cardAuth','success'].includes(current)?'send':current}
+document.addEventListener('click',e=>{
+  const sf=e.target.closest('[data-sendfrom]'); if(sf){resetSend();S.send.from=sf.dataset.sendfrom;showApp('sendMethod');return}
+  const b=e.target.closest('[data-go]');if(!b)return;const k=b.dataset.go;
+  if(k==='logout'){openPanel(false);toast('Logged out');showAuth('login');return}
+  if(k==='send'){resetSend();showApp('sendMethod');return}
+  if(k==='topup'){resetTop();showApp('topup');return}
+  if(k==='benForm'){S.benEdit=null;S.bd=null}
+  showApp(k)});
+
+function enterApp(src){
+  $('#auth').classList.add('hidden'); $('#app').classList.remove('hidden'); showApp('home'); renderBell();
+  if(src==='signup') notify('Account created','Your PIN is set and your Swift Wave account is ready to use.','checkc','home');
+  if(src==='login'&&S.pendingSec){S.pendingSec=false;notify('Password changed','Your password was reset using OTP and PIN verification.','shield')}
+  if(src==='login') notify('New sign-in','You signed in on Swift Wave Web. If this wasn\'t you, change your password.','shield',null,true);
+  if(!simulated){simulated=true;setTimeout(()=>{
+    const sv=balOf('sav');sv.bal+=1000;
+    addTx(mkTx({type:'received',title:'Nina Michel',sub:'Bank transfer · CBZ Bank',amt:1000,acct:'sav',ref:'RC'+Math.floor(10000+Math.random()*90000),details:[['From','Nina Michel (xxxx xxxx 12333)']]}));
+    notify('Money received','Nina Michel sent you ZWD 1,000.00 to your Savings Account.','cash','history');},12000)}
+}
+function showApp(name){
+  stopTimer(); current=name; renderNav(); renderWho(); closeTx();
+  const v=(V[name]||V.placeholder)(name); const c=$('#appContent'); c.innerHTML=v.html; hydrate(c); v.bind&&v.bind(c);
+  window.scrollTo(0,0);
+}
+function resetSend(){S.flow='send';S.send={zwd:'',usd:'',from:null,method:null,rcv:{},save:true,id:''}}
+const FLOWS={sav:['Receiving method','Paying with','Amount','Receiver','Review','OTP','Done'],card:['Receiving method','Paying with','Amount','Receiver','Review','Card check','Done']};
+const TOP_FLOWS={sav:['Top up details','Review','OTP','Done'],card:['Top up details','Review','Card check','Done']};
+function topFlow(f){return TOP_FLOWS[f]||TOP_FLOWS.sav}
+function accIc(id){return id==='card'?'pay':id==='wallet'?'loan':'bank'}
+function fullName(){return [S.profile.first,S.profile.last].filter(Boolean).join(' ')||'Karlos'}
+function renderWho(){$('#whoName').textContent=fullName();$('#whoAv').textContent=(S.profile.first||'K')[0].toUpperCase()}
+function stepper(n){return stepperL(FLOWS[S.send.from]||FLOWS.sav,n)}
+function stepperL(st,n){
+  return `<div class="steps">${st.map((s,i)=>`<span class="${i+1===n?'on':i+1<n?'done':''}"><b>${i+1<n?'✓':i+1}</b>${s}</span>`).join('')}</div>`}
+let txSeq=1;
+const balOf=id=>ACCOUNTS.find(a=>a.id===id);
+const totalBal=()=>ACCOUNTS.reduce((s,a)=>s+a.bal,0);
+const hhmm=d=>d.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});
+function dayLabel(d){const t=new Date();t.setHours(0,0,0,0);const x=new Date(d);x.setHours(0,0,0,0);const diff=(t-x)/864e5;
+  return diff===0?'Today':diff===1?'Yesterday':d.toLocaleDateString(S.lang==='fr'?'fr-FR':'en-GB',{day:'numeric',month:'short',year:'numeric'})}
+function mkTx(o){const a=balOf(o.acct);return {id:'TX'+String(Date.now()).slice(-6)+(txSeq++),time:new Date(),status:'Successful',fee:0,details:[],balAfter:a?a.bal:0,...o}}
+function addTx(t){S.txns.unshift(t);S.lastUpd=new Date();S.bump=true;
+  if(current==='home')showApp('home'); if(current==='history')renderHistList();}
+const TX_IC={send:'send',topup:'topup',received:'down'};
+const TX_TYPE={send:'Money sent',topup:'Top up',received:'Money received'};
+function txnHTML(t){const inc=t.amt>0;
+  return `<button class="txn" data-tx="${t.id}"><span class="ti" style="${inc?'color:var(--ok)':''}">${ic(t.ic||TX_IC[t.type])}</span>
+    <span class="tn"><b>${esc(t.title)}</b><span>${dayLabel(t.time)}, ${hhmm(t.time)} · ${esc(t.sub)}</span></span>
+    <span class="tr"><span class="ta ${inc?'in':''}">${mask((inc?'+':'-')+'ZWD '+fmt(Math.abs(t.amt)))}</span><small>${t.status}</small></span></button>`}
+function openTx(id){const t=S.txns.find(x=>x.id===id);if(!t)return;closeTx();const a=balOf(t.acct),inc=t.amt>0;
+  const rows=[['Type',TX_TYPE[t.type]],['Date & time',`${dayLabel(t.time)}, ${hhmm(t.time)}`],[inc?'Credited to':'Paid from',`${a.name} (${a.mask})`],
+    ...t.details,['Fee','ZWD '+fmt(t.fee)],['Reference',t.ref||t.id],['Balance after',mask('ZWD '+fmt(t.balAfter))]];
+  const el=document.createElement('div');el.className='sheet-bg';el.id='txSheet';
+  el.innerHTML=`<div class="sheet" role="dialog" aria-label="Transaction details"><div class="center">
+    <div class="success-ic" style="width:64px;height:64px;font-size:28px;${inc?'color:var(--ok)':''}">${ic(TX_IC[t.type])}</div>
+    <div class="big-amt" style="${inc?'color:var(--ok)':''}">${mask((inc?'+':'-')+'ZWD '+fmt(Math.abs(t.amt)))}</div>
+    <p style="margin:0 0 6px;font-weight:500">${esc(t.title)}</p><span class="status">${t.status}</span></div>
+    <dl class="kv" style="margin-top:18px">${rows.map(([k,v])=>`<dt>${k}</dt><dd>${esc(v)}</dd>`).join('')}</dl>
+    <button class="btn primary" id="txShare" style="margin-top:20px">${ic('share')}Share receipt</button>
+    <button class="btn ghost" id="txClose">Close</button></div>`;
+  document.body.appendChild(el);
+  el.onclick=e=>{if(e.target===el||e.target.closest('#txClose'))closeTx()};
+  el.querySelector('#txShare').onclick=async()=>{const txt=`Swift Wave receipt\n${TX_TYPE[t.type]}: ${t.title}\nZWD ${fmt(Math.abs(t.amt))}\n${dayLabel(t.time)}, ${hhmm(t.time)}\nRef: ${t.ref||t.id}`;
+    try{if(navigator.share)await navigator.share({text:txt});else{await navigator.clipboard.writeText(txt);toast('Receipt copied')}}catch{toast('Receipt copied')}};
+}
+function closeTx(){const e=$('#txSheet');if(e)e.remove()}
+document.addEventListener('click',e=>{const b=e.target.closest('[data-tx]');if(b)openTx(b.dataset.tx)});
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeTx()});
+(function seed(){const y=new Date(Date.now()-864e5);y.setHours(16,20);const h=new Date(Date.now()-2*36e5);
+  S.txns.push(mkTx({type:'received',title:'Nina Michel',sub:'Bank transfer · CBZ Bank',amt:5,acct:'sav',time:h,ref:'RC48213',details:[['From','Nina Michel (xxxx xxxx 12333)']]}));
+  S.txns.push(mkTx({type:'send',title:'Nina Michel',sub:'Bank Account · CBZ Bank',amt:-5,acct:'sav',time:y,ref:'564544',balAfter:499995,details:[['To','Nina Michel (xxxx xxxx 12333)']]}));})();
+function completeSend(){
+  const c=calc(),v=S.send.rcv,a=ACCOUNTS.find(x=>x.id===S.send.from); S.send.id=String(Math.floor(100000+Math.random()*900000));
+  a.bal-=c.total; const mt=METHODS.find(m=>m.id===S.send.method);
+  addTx(mkTx({type:'send',title:v.rname,sub:mt.name+(v.bank?' · '+v.bank:v.provider?' · '+v.provider:v.loc?' · '+v.loc:''),amt:-c.total,fee:c.fee,acct:a.id,ref:S.send.id,ic:mt.ic,
+    details:[['Receiver gets','USD '+fmt(c.usd)],['Exchange rate','1 USD = 361.900 ZWD'],...RECEIVER_FIELDS[S.send.method].map(([k])=>[LABELS[k],v[k]])]}));
+  showApp('success');
+  notify('Transfer successful',`USD ${fmt(c.usd)} sent to ${v.rname} from your ${a.name}. Transaction ID ${S.send.id}.`,'send','history');
+}
+const NETWORKS=[{id:'econet',name:'Econet',pre:['77','78']},{id:'netone',name:'NetOne',pre:['71']},{id:'telecel',name:'Telecel',pre:['73']}];
+const AIRTIME=[500,1000,2000,5000];
+const BUNDLES=[{id:'d1',name:'Daily 500 MB',amt:700},{id:'d2',name:'Weekly 1 GB',amt:1500},{id:'d3',name:'Monthly 3 GB',amt:4000},{id:'d4',name:'Monthly 10 GB',amt:12000}];
+function myNumber(){return S.phone||'771234055'}
+function detectNet(n){const d=n.replace(/\D/g,'').replace(/^263/,'').replace(/^0/,'');const x=NETWORKS.find(w=>w.pre.some(p=>d.startsWith(p)));return x?x.id:null}
+function resetTop(){S.flow='topup';S.top={who:'me',num:myNumber(),net:detectNet(myNumber())||'econet',kind:'airtime',amt:0,bundle:null,from:null,ref:''}}
+function completeTop(){
+  const t=S.top,a=ACCOUNTS.find(x=>x.id===t.from),net=NETWORKS.find(n=>n.id===t.net);
+  a.bal-=t.amt; t.ref='TP'+Math.floor(10000000+Math.random()*90000000);
+  const what=t.kind==='data'?BUNDLES.find(b=>b.id===t.bundle).name:'Airtime';
+  addTx(mkTx({type:'topup',title:`${net.name} ${what}`,sub:'+263 '+t.num.replace(/^263/,''),amt:-t.amt,acct:a.id,ref:t.ref,
+    details:[['Mobile number','+263 '+t.num],['Network',net.name],['Top up for',t.who==='me'?'My number':'Another number']]}));
+  showApp('topupSuccess');
+  notify('Top up successful',`${what} of ZWD ${fmt(t.amt)} sent to ${net.name} +263 ${t.num}. Ref ${t.ref}.`,'topup','history');
+}
+function calc(){const z=parseFloat(S.send.zwd)||0;const m=METHODS.find(x=>x.id===S.send.method);const fee=m?m.fee:0;return {z,usd:z/RATE,fee,total:z+fee}}
+
+/* ================= My Stuff helpers ================= */
+S.nset={tx:true,promo:true,security:true}; S.sec={loginOtp:true,hideOnStart:false}; S.lang='en'; S.theme='system';
+const METHOD_NAME=id=>METHODS.find(m=>m.id===id).name;
+function benExists(method,v){return SAVED.some(b=>b.method===method&&b.rname.toLowerCase()===String(v.rname||'').toLowerCase()&&(b.acct||b.msisdn)===(v.acct||v.msisdn))}
+function benSub(b){return b.method==='bank'?`${b.bank} · ${b.acct}`:b.method==='mobile'?`${b.provider} · ${b.msisdn}`:b.method==='cash'?`${b.loc} · ${b.msisdn}`:b.msisdn}
+function initials(n){return String(n).split(/\s+/).filter(Boolean).slice(0,2).map(x=>x[0].toUpperCase()).join('')}
+function confirmBox(title,body,okLabel,onOk,danger){closeTx();
+  const el=document.createElement('div');el.className='sheet-bg';el.id='txSheet';
+  el.innerHTML=`<div class="sheet" role="alertdialog" aria-label="${esc(title)}"><h3 style="margin:0 0 6px;font-size:18px">${esc(title)}</h3><p class="muted" style="margin:0 0 20px">${esc(body)}</p>
+    <button class="btn primary" id="cOk" style="${danger?'background:var(--danger)':''}">${esc(okLabel)}</button><button class="btn ghost" id="cNo">Cancel</button></div>`;
+  document.body.appendChild(el);
+  el.onclick=e=>{if(e.target===el||e.target.closest('#cNo'))closeTx();if(e.target.closest('#cOk')){closeTx();onOk()}};
+  el.querySelector('#cOk').focus();
+}
+function sw(id,on,label,sub){return `<div class="mi"><span class="mt"><b>${label}</b>${sub?`<span>${sub}</span>`:''}</span><label class="sw"><input type="checkbox" id="${id}" ${on?'checked':''} aria-label="${esc(label)}"><span></span></label></div>`}
+function backHead(title,to='mystuff',extra=''){return `<div class="page-head"><button class="icon-btn" data-go="${to}" aria-label="Back">${ic('back')}</button><h2>${title}</h2><span style="flex:1"></span>${extra}</div>`}
+function kycInfo(){const t=S.reg||'citizen';return t==='immigrant'?{cls:'amber',txt:'Pending status confirmation'}:{cls:'green',txt:'Verified'}}
+function prof(){const d=S.rd||{};return {first:S.profile.first||'Karlos',last:S.profile.last||'',email:d.email||'',addr:d.addr||'',city:d.city||'',prov:d.prov||'',occ:d.occ||'',dob:d.dob||'',idno:d.nid||d.pp||d.idno||''}}
+
+/* ================= Live chat (Claude via sample capability) ================= */
+const CHAT_HELLO=()=>S.lang==='fr'?`Bonjour ${S.profile.first||''} ! Je suis l'assistant Swift Wave. Comment puis-je vous aider aujourd'hui ?`:`Hi ${S.profile.first||''}! I'm the Swift Wave assistant. How can I help you today?`;
+const CHAT_CHIPS=()=>['Why was I charged ZWD 5?','How do I add a beneficiary?','I forgot my PIN','Talk to a person'];
+let sampleP=null,chatCtl=null;
+function getSample(){if(!sampleP)sampleP=(async()=>{try{return window.claude&&window.claude.use?await window.claude.use('sample'):null}catch{return null}})();return sampleP}
+function chatContext(){
+  return JSON.stringify({customer:{name:fullName(),mobile:'+263 '+myNumber(),registrationType:S.reg||'citizen',kyc:kycInfo().txt},
+    accounts:ACCOUNTS.map(a=>({name:a.name,number:a.mask,balance:'ZWD '+fmt(a.bal)})),
+    recentTransactions:S.txns.slice(0,8).map(t=>({when:`${dayLabel(t.time)} ${hhmm(t.time)}`,type:TX_TYPE[t.type],to_from:t.title,via:t.sub,amount:(t.amt>0?'+':'-')+'ZWD '+fmt(Math.abs(t.amt)),fee:'ZWD '+fmt(t.fee),ref:t.ref||t.id,status:t.status})),
+    beneficiaries:SAVED.map(b=>({name:b.nick||b.rname,method:METHOD_NAME(b.method)}))});
+}
+function chatPrompt(){
+  const lang=S.lang==='fr'?'French':'English';
+  const transcript=S.chat.filter(m=>m.role!=='sys').map(m=>(m.role==='user'?'Customer: ':'Agent: ')+m.content).join('\n');
+  return `You are the live chat support agent inside the Swift Wave mobile money app (Zimbabwe, amounts in ZWD, exchange rate 1 USD = 361.900 ZWD).
+Reply ONLY with the agent's next message, in ${lang}, plain text, 1–4 short sentences, warm and direct. No markdown.
+What the app offers: Send Money (receiving methods Bank Account, Mobile Money, Cash Pickup, Voucher; fee ZWD 5 each; paying from Wallet, Savings Account or Swift Wave Card; Savings/Wallet confirm with OTP, the card with CVV and card PIN), Top Up (airtime or data bundles for Econet, NetOne, Telecel; no fee), Transaction History (filters, search, receipts), My Stuff (My Profile, Beneficiaries add/edit/delete/favourite, Security: change PIN and password, Notifications, Language & Display, Help & Support). Forgot password on the login screen: mobile number → OTP → PIN → new password.
+Rules: use the customer data below to answer about their balances and transactions. You cannot move money or change settings yourself; tell them which screen to use. Never ask for or accept a PIN, OTP, password or full card number; if they share one, tell them to change it in My Stuff → Security. For disputes, fraud, a locked account or when they ask for a person, say you've raised a support ticket with a reference like SW-` + Math.floor(100000+Math.random()*900000) + ` and a human agent will contact them on their registered number within 24 hours. Don't invent policies beyond this.
+Customer data: ${chatContext()}
+
+Conversation so far:
+${transcript}
+Agent:`;
+}
+function chatRender(r){
+  const log=r.querySelector('#chatLog');if(!log)return;
+  log.innerHTML=S.chat.map((m,i)=>m.role==='sys'?`<div class="msg sys">${esc(m.content)}</div>`
+    :`${m.role==='assistant'&&(i===0||S.chat[i-1].role!=='assistant')?`<div class="who-row">${ic('chat')}Swift Wave assistant</div>`:''}<div class="msg ${m.role==='user'?'me':'agent'}" ${i===0&&m.role==='assistant'?'':'data-notr'}>${m.pending&&!m.content?'<span class="typing"><i></i><i></i><i></i></span>':esc(m.content)}</div>`).join('');
+  log.scrollTop=log.scrollHeight;
+}
+/* Built-in assistant: answers from the app's own data when Claude isn't reachable */
+function botReply(q){
+  const fr=S.lang==='fr',t=q.toLowerCase(),has=(...w)=>w.some(x=>t.includes(x)),L=(en,f)=>fr?f:en;
+  const tk='SW-'+Math.floor(100000+Math.random()*900000);
+  if(/\b\d{4,6}\b/.test(t)&&has('pin','otp','code','password','mot de passe'))
+    return L('Please don\'t share your PIN, OTP or password here. If you already did, change it now in My Stuff → Security.','Ne communiquez pas votre code PIN, OTP ou mot de passe ici. Si c\'est déjà fait, changez-le dans Mon espace → Sécurité.');
+  if(has('person','human','agent','someone','conseiller','humain','personne','plainte','complaint','fraud','fraude','dispute','stolen','vol'))
+    return L(`I've raised support ticket ${tk}. A member of our team will contact you on +263 ${myNumber()} within 24 hours.`,`J'ai ouvert le ticket ${tk}. Un conseiller vous contactera au +263 ${myNumber()} sous 24 heures.`);
+  if(has('balance','solde','how much','combien'))
+    return L('Your balances: ','Vos soldes : ')+ACCOUNTS.map(a=>`${tr(a.name)} ZWD ${fmt(a.bal)}`).join(', ')+L(`. Total: ZWD ${fmt(totalBal())}.`,`. Total : ZWD ${fmt(totalBal())}.`);
+  if(has('fee','charge','frais','zwd 5','cost','coût'))
+    return L('Each transfer has a ZWD 5 fee, whatever the receiving method. Top ups have no fee. You see the fee in the summary before you confirm.','Chaque transfert coûte ZWD 5, quel que soit le mode de réception. Les recharges sont gratuites. Les frais s\'affichent dans le récapitulatif avant confirmation.');
+  if(has('last','recent','transaction','history','historique','dernier','dernière')){
+    const x=S.txns.slice(0,3).map(t=>`${tr(dayLabel(t.time))} ${hhmm(t.time)}: ${t.title} ${(t.amt>0?'+':'-')}ZWD ${fmt(Math.abs(t.amt))}`).join('; ');
+    return L(`Your latest transactions: ${x}. See them all in Transaction History.`,`Vos dernières transactions : ${x}. Retrouvez-les toutes dans l'historique.`)}
+  if(has('beneficiar','bénéficiaire','receiver','saved'))
+    return L(`You have ${SAVED.length} saved beneficiaries. Go to My Stuff → Beneficiaries to add, edit, delete or favourite one, or tap send to pay them directly.`,`Vous avez ${SAVED.length} bénéficiaires enregistrés. Allez dans Mon espace → Bénéficiaires pour en ajouter, modifier, supprimer ou mettre en favori.`);
+  if(has('forgot','oublié','reset','réinitialis')&&has('password','mot de passe'))
+    return L('On the login screen, tap Forgot password? Enter your mobile number, the OTP we send, your PIN, then create a new password.','Sur l\'écran de connexion, touchez Mot de passe oublié ? Saisissez votre numéro, l\'OTP reçu, votre code PIN, puis créez un nouveau mot de passe.');
+  if(has('pin'))
+    return L('To change your PIN, go to My Stuff → Security → Change PIN. If you forgot it, ask for a person here and we\'ll verify your identity to reset it.','Pour changer votre code PIN : Mon espace → Sécurité → Changer le code PIN. Si vous l\'avez oublié, demandez un conseiller ici pour le réinitialiser après vérification.');
+  if(has('password','mot de passe'))
+    return L('Change your password in My Stuff → Security. Use at least 8 characters with a letter and a number.','Changez votre mot de passe dans Mon espace → Sécurité. Utilisez au moins 8 caractères avec une lettre et un chiffre.');
+  if(has('top up','topup','airtime','data','bundle','recharge','crédit','forfait'))
+    return L('Tap Top Up, choose your number or another one, pick Airtime or a Data Bundle, choose the account to pay from, then confirm. There\'s no fee.','Touchez Recharge, choisissez votre numéro ou un autre, sélectionnez crédit ou forfait, le compte à débiter, puis confirmez. Sans frais.');
+  if(has('send','transfer','envoy','virement','transf'))
+    return L('Tap Send Money, pick how they receive it (bank, mobile money, cash pickup or voucher), choose the account to pay from, enter the amount and receiver, then confirm with OTP or card PIN.','Touchez Envoyer de l\'argent, choisissez le mode de réception, le compte à débiter, le montant et le bénéficiaire, puis confirmez par OTP ou code PIN de la carte.');
+  if(has('pending','limit','plafond','attente','immigrant','refugee','réfugié'))
+    return L('Immigrant accounts start with lower limits until your residency or refugee status is confirmed. Once it is, your limits are raised automatically.','Les comptes immigrants ont des plafonds réduits jusqu\'à la confirmation de votre statut. Ils sont ensuite relevés automatiquement.');
+  if(has('profile','address','email','adresse','profil'))
+    return L('Update your email and address in My Stuff → My Profile. To change your name or ID details, ask for a person and send a supporting document.','Modifiez votre e-mail et votre adresse dans Mon espace → Mon profil. Pour le nom ou la pièce d\'identité, demandez un conseiller avec un justificatif.');
+  if(has('thank','merci'))return L('You\'re welcome! Anything else I can help with?','Avec plaisir ! Puis-je vous aider pour autre chose ?');
+  if(has('hi','hello','hey','bonjour','salut'))return L(`Hello ${S.profile.first||''}! Ask me about your balance, fees, transfers, top ups, beneficiaries or security.`,`Bonjour ${S.profile.first||''} ! Posez-moi vos questions sur votre solde, les frais, les transferts, les recharges, les bénéficiaires ou la sécurité.`);
+  return L('I can help with balances, fees, transfers, top ups, beneficiaries, PIN and password. Type "talk to a person" if you need our team.','Je peux vous aider pour le solde, les frais, les transferts, les recharges, les bénéficiaires, le code PIN et le mot de passe. Écrivez « parler à un conseiller » pour joindre notre équipe.');
+}
+async function botStream(m,text,r,signal){
+  const words=text.split(' ');m.content='';
+  await new Promise(res=>setTimeout(res,600));
+  for(const w of words){if(signal.aborted)return;m.content+=(m.content?' ':'')+w;m.pending=false;chatRender(r);await new Promise(res=>setTimeout(res,35))}
+}
+async function chatBind(r){
+  const inp=r.querySelector('#chatIn'),send=r.querySelector('#chatSend'),stop=r.querySelector('#chatStop'),st=r.querySelector('#chatStatus');
+  chatRender(r);
+  let sample=await getSample();
+  if(!sample)sampleP=null; // try again next time the chat is opened
+  if(!document.body.contains(inp))return;
+  st.innerHTML='<i></i>'+tr('Online');
+  const go=async text=>{text=text.trim();if(!text||chatCtl)return;
+    S.chat.push({role:'user',content:text});const m={role:'assistant',content:'',pending:true};S.chat.push(m);
+    inp.value='';chatRender(r);r.querySelector('#chips').classList.add('hidden');send.classList.add('hidden');stop.classList.remove('hidden');
+    chatCtl=new AbortController();const sig=chatCtl.signal;
+    try{
+      if(sample){
+        try{await sample(chatPrompt(),{modelTier:'quick',cache:false,signal:sig,onText:({text})=>{m.content=text;m.pending=false;chatRender(r)}});}
+        catch(e){if(e&&e.code==='cancelled'){if(e.text)m.content=e.text}
+          else{if(e&&e.code==='not_granted')sample=null;await botStream(m,botReply(text),r,sig)}}
+      }else await botStream(m,botReply(text),r,sig);
+    }finally{m.pending=false;if(!m.content)S.chat.splice(S.chat.indexOf(m),1);chatCtl=null;
+      if(document.body.contains(inp)){stop.classList.add('hidden');send.classList.remove('hidden');chatRender(r);inp.focus()}}};
+  send.onclick=()=>go(inp.value);
+  stop.onclick=()=>chatCtl&&chatCtl.abort();
+  inp.onkeydown=e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();go(inp.value)}};
+  r.querySelectorAll('[data-chip]').forEach(b=>b.onclick=()=>go(tr(b.dataset.chip)));
+  inp.focus();
+}
+
+function renderHistList(){
+  const L=$('#histList');if(!L)return;
+  const inn=S.txns.filter(t=>t.amt>0).reduce((s,t)=>s+t.amt,0),out=S.txns.filter(t=>t.amt<0).reduce((s,t)=>s-t.amt,0);
+  $('#histSum').innerHTML=`<div class="block"><div class="lbl">Total balance</div><b>${mask('ZWD '+fmt(totalBal()))}</b></div>
+    <div class="block"><div class="lbl">Money in</div><b style="color:var(--ok)">${mask('+ZWD '+fmt(inn))}</b></div>
+    <div class="block"><div class="lbl">Money out</div><b>${mask('-ZWD '+fmt(out))}</b></div>`;
+  const q=(S.hq||'').toLowerCase();
+  const list=S.txns.filter(t=>(S.hf==='all'||t.type===S.hf)&&(!q||[t.title,t.sub,t.ref,t.id].join(' ').toLowerCase().includes(q)));
+  if(!list.length){L.innerHTML=`<div class="empty" style="padding:40px 10px"><div class="q">${ic('history')}</div><p class="muted" style="margin:0">${q?'No transactions match your search.':'No transactions yet. Send money or top up to see them here.'}</p></div>`;return}
+  let day='',h='';list.forEach(t=>{const d=dayLabel(t.time);if(d!==day){day=d;h+=`<div class="day">${d}</div>`}h+=txnHTML(t)});L.innerHTML=h;
+}
+const V = {
+  home(){
+    return {html:`<div class="dash"><div>
+      <div class="block"><div class="total"><div><div class="lbl">Total Balance</div><div class="amt ${S.bump?'bump':''}">${mask('ZWD '+fmt(totalBal()))}</div></div>
+        <button class="icon-btn" id="hide" aria-label="${S.hide?'Show':'Hide'} balances">${ic(S.hide?'eye':'eyeOff')}</button></div></div>
+      <div class="sec-head"><h3>Accounts</h3><button class="link" data-go="history">View All ›</button></div>
+      <div class="accts" style="margin-bottom:24px">
+        <div class="acct"><div class="t">Wallet Balance</div><div class="v ${S.bump?'bump':''}">${mask('ZWD '+fmt(balOf('wallet').bal))}</div>
+          <div class="acts"><button class="pill w" data-go="addmoney">${ic('plus')}Add Money</button><button class="pill o" data-sendfrom="wallet">${ic('cash')}Send Cash</button></div>
+          <div class="upd">Balance last update on ${hhmm(S.lastUpd)} <button style="background:none;border:0;color:#fff;padding:0;display:flex" id="rf" aria-label="Refresh">${ic('refresh')}</button></div></div>
+        ${ACCOUNTS.filter(a=>a.id!=='wallet').map((a,i)=>`<div class="acct ${i?'alt2':'alt'}"><div class="t">${a.name}</div><div class="v ${S.bump?'bump':''}">${mask(a.cur+' '+fmt(a.bal))}</div>
+          <div class="acts"><button class="pill o" data-sendfrom="${a.id}">${ic('send')}Transfer</button></div><div class="upd">${a.mask}</div></div>`).join('')}
+      </div>
+      <div class="block"><div class="sec-head"><h3>Quick Services</h3><button class="link" data-go="services">View All ›</button></div>
+        <div class="qs">
+          <button data-go="send"><span class="q">${ic('transfer')}</span>Transfer</button>
+          <button data-go="pay"><span class="q">${ic('pay')}</span>Pay</button>
+          <button data-go="topup"><span class="q">${ic('topup')}</span>Top Up</button>
+          <button data-go="history"><span class="q">${ic('history')}</span>History</button>
+        </div></div>
+      </div><div>
+      <div class="block"><div class="sec-head"><h3>Transactions <span class="live" style="margin-left:6px"><i></i>Live</span></h3><button class="link" data-go="history">All transactions ›</button></div>
+        ${S.txns.slice(0,4).map(txnHTML).join('')}</div>
+      <div class="refer"><div><h4>Refer &amp; Earn</h4><p>Invite your friends and get a reward of 3 GB of mobile data</p>
+        <button class="btn primary sm" id="refer">Refer Now</button></div><span class="gift">${ic('gift')}</span></div>
+      </div></div>`,
+    bind(r){
+      r.querySelector('#hide').onclick=()=>{S.hide=!S.hide;showApp('home')};
+      S.bump=false;
+      r.querySelector('#rf').onclick=()=>{S.lastUpd=new Date();showApp('home');toast('Balance updated')};
+      r.querySelector('#refer').onclick=async()=>{const link='https://swiftwave.app/r/'+(S.profile.first||'KARLOS').toUpperCase();try{await navigator.clipboard.writeText(link);toast('Referral link copied')}catch{toast(link)}};
+    }};
+  },
+  sendMethod(){
+    const desc={bank:'Send to any local or international bank account',mobile:'Send to a mobile money wallet',cash:'Receiver collects cash at an agent',voucher:'Receiver redeems a voucher code'};
+    return {html:`<div class="page-head"><button class="icon-btn" data-go="home" aria-label="Back">${ic('back')}</button><h2>Send Money</h2></div>
+      ${stepper(1)}
+      <div class="block" style="max-width:620px"><h3 style="margin:0 0 4px;font-size:17px">Receiving Method</h3>
+        <p class="muted small" style="margin:0 0 16px">How should the receiver get the money?</p>
+        ${METHODS.map(m=>`<button class="opt" data-mpick="${m.id}">
+          <span class="oi" style="background:var(--tint);color:var(--teal-d)">${ic(m.ic)}</span>
+          <span class="ot"><b>${m.name}</b><span>${desc[m.id]}</span><span class="verify-tag">Transfer Fee ZWD ${m.fee}</span></span>
+          <span class="chev">${ic('chev')}</span></button>`).join('')}
+      </div>`,
+    bind(r){ r.querySelectorAll('[data-mpick]').forEach(b=>b.onclick=()=>{if(S.send.method!==b.dataset.mpick)S.send.rcv={};S.send.method=b.dataset.mpick;showApp(S.send.from?'send1':'sendType')}) }};
+  },
+  sendType(){
+    if(!S.send.method) return V.sendMethod();
+    return {html:`<div class="page-head"><button class="icon-btn" id="bkT" aria-label="Back">${ic('back')}</button><h2>Send Money</h2></div>
+      ${stepper(2)}
+      <div class="block" style="max-width:620px"><h3 style="margin:0 0 4px;font-size:17px">Paying With</h3>
+        <p class="muted small" style="margin:0 0 16px">Choose where the money comes from</p>
+        ${ACCOUNTS.map(a=>`<button class="opt" data-pick="${a.id}">
+          <span class="oi" style="background:var(--tint);color:var(--teal-d)">${ic(accIc(a.id))}</span>
+          <span class="ot"><b>${a.name}</b><span>${a.mask}</span><span class="verify-tag">${ic('shield')}${a.id==='card'?'Confirmed with CVV &amp; card PIN':'Confirmed with OTP'}</span></span>
+          <span style="text-align:right"><b style="display:block;font-weight:600">${mask(a.cur+' '+fmt(a.bal))}</b><span class="small muted">Available</span></span>
+          <span class="chev">${ic('chev')}</span></button>`).join('')}
+      </div>`,
+    bind(r){ r.querySelector('#bkT').onclick=()=>showApp('sendMethod');
+      r.querySelectorAll('[data-pick]').forEach(b=>b.onclick=()=>{S.send.from=b.dataset.pick;showApp('send1')}) }};
+  },
+  send1(){
+    if(!S.send.method) return V.sendMethod();
+    if(!S.send.from) return V.sendType();
+    const s=S.send,c=calc(),src=ACCOUNTS.find(a=>a.id===s.from),mt=METHODS.find(m=>m.id===s.method);
+    return {html:`<div class="page-head"><button class="icon-btn" id="bk1" aria-label="Back">${ic('back')}</button><h2>Send Money</h2></div>
+      ${stepper(3)}
+      <div class="two"><div class="block" style="margin:0">
+        <div class="field"><label>Receiving Method</label><div class="party" style="justify-content:space-between">
+          <span style="display:flex;gap:12px;align-items:center"><span class="ti">${ic(mt.ic)}</span><span><b style="display:block;font-weight:500">${mt.name}</b><span class="small muted">Transfer Fee ZWD ${mt.fee}</span></span></span>
+          <button class="link small" id="chgM">Change</button></div></div>
+        <div class="field"><label>Paying With</label><div class="party" style="justify-content:space-between">
+          <span style="display:flex;gap:12px;align-items:center"><span class="ti">${ic(accIc(src.id))}</span><span><b style="display:block;font-weight:500">${src.name}</b><span class="small muted">${src.mask} · ${src.cur} ${fmt(src.bal)}</span></span></span>
+          <button class="link small" id="chg">Change</button></div></div>
+        <div class="field"><label for="z">You Send</label><div class="amt-row"><input id="z" inputmode="decimal" placeholder="Enter Amount" value="${s.zwd}"><span class="cur">${FLAG_ZW}ZWD</span></div></div>
+        <span class="rate">1 USD = 361.900 ZWD</span>
+        <div class="field"><label for="u">They Receive</label><div class="amt-row"><input id="u" inputmode="decimal" placeholder="Enter Amount" value="${s.usd}"><span class="cur">${FLAG_US}USD</span></div></div>
+      </div>
+      <div class="block sum" style="margin:0"><h3 style="margin:0 0 10px;font-size:16px">Summary</h3>
+        <div class="sum-row"><span class="muted">Send</span><span id="sSend">ZWD ${fmt(c.z)}</span></div>
+        <div class="sum-row"><span class="muted">Charge</span><span id="sFee">ZWD ${fmt(c.fee)}</span></div>
+        <div class="sum-row tot"><span>Total to Pay</span><span id="sTot">ZWD ${fmt(c.total)}</span></div>
+        <div class="sum-row"><span class="muted">Total to Receive</span><span id="sRcv" style="font-weight:600;color:var(--teal-d)">USD ${fmt(c.usd)}</span></div>
+        <div class="err" id="sErr"></div>
+        <button class="btn primary" id="go" style="margin-top:14px">Next</button>
+      </div></div>`,
+    bind(r){
+      const z=r.querySelector('#z'),u=r.querySelector('#u');
+      const clean=v=>v.replace(/[^\d.]/g,'').replace(/(\..*)\./g,'$1');
+      const upd=()=>{const c=calc();r.querySelector('#sSend').textContent='ZWD '+fmt(c.z);r.querySelector('#sFee').textContent='ZWD '+fmt(c.fee);
+        r.querySelector('#sTot').textContent='ZWD '+fmt(c.total);r.querySelector('#sRcv').textContent='USD '+fmt(c.usd);validate()};
+      const validate=()=>{const c=calc(),a=ACCOUNTS.find(x=>x.id===S.send.from);let m='';
+        if(a&&c.total>a.bal)m=`Insufficient balance in ${a.name}. Available ZWD ${fmt(a.bal)}.`;
+        r.querySelector('#sErr').textContent=m;r.querySelector('#go').disabled=!(c.z>0&&S.send.from&&S.send.method)||!!m};
+      z.oninput=()=>{z.value=clean(z.value);S.send.zwd=z.value;const n=parseFloat(z.value);S.send.usd=n?(n/RATE).toFixed(2):'';u.value=S.send.usd;upd()};
+      u.oninput=()=>{u.value=clean(u.value);S.send.usd=u.value;const n=parseFloat(u.value);S.send.zwd=n?(n*RATE).toFixed(2):'';z.value=S.send.zwd;upd()};
+      r.querySelector('#bk1').onclick=r.querySelector('#chg').onclick=()=>showApp('sendType');
+      r.querySelector('#chgM').onclick=()=>showApp('sendMethod');
+      r.querySelector('#go').onclick=()=>showApp('send2'); validate();
+    }};
+  },
+  send2(){
+    const f=RECEIVER_FIELDS[S.send.method], v=S.send.rcv, m=METHODS.find(x=>x.id===S.send.method);
+    return {html:`<div class="page-head"><button class="icon-btn" id="bk" aria-label="Back">${ic('back')}</button><h2>Send Money</h2></div>
+      ${stepper(4)}
+      <div class="two"><div class="block" style="margin:0">
+        <div class="sec-head"><h3>Receiver · ${m.name}</h3>
+          <select class="input" id="saved" style="width:auto;padding:6px 34px 6px 12px;font-size:13px"><option value="">Choose Receiver</option>${SAVED.filter(b=>b.method===S.send.method).map(b=>`<option value="${b.id}">${esc(b.nick||b.rname)}</option>`).join('')}</select></div>
+        ${f.map(([k,l,o])=>`<div class="field"><label for="f_${k}">${l}</label>${Array.isArray(o)
+          ?`<select class="input" id="f_${k}" data-k="${k}"><option value="">Select</option>${o.map(x=>`<option ${v[k]===x?'selected':''}>${x}</option>`).join('')}</select>`
+          :`<input class="input" id="f_${k}" data-k="${k}" placeholder="${o}" value="${esc(v[k]||'')}">`}</div>`).join('')}
+        <div class="err" id="rErr"></div>
+        <button class="btn primary" id="go" style="margin-top:6px">Next</button>
+      </div>
+      <div class="block sum" style="margin:0"><h3 style="margin:0 0 10px;font-size:16px">You're sending</h3>
+        <div class="big-amt" style="text-align:left;font-size:28px">USD ${fmt(calc().usd)}</div>
+        <div class="sum-row"><span class="muted">Total to Pay</span><span>ZWD ${fmt(calc().total)}</span></div>
+        <div class="sum-row"><span class="muted">From</span><span>${ACCOUNTS.find(a=>a.id===S.send.from).name}</span></div>
+      </div></div>`,
+    bind(r){
+      r.querySelector('#bk').onclick=()=>showApp('send1');
+      r.querySelectorAll('[data-k]').forEach(e=>e.oninput=e.onchange=()=>S.send.rcv[e.dataset.k]=e.value);
+      r.querySelector('#saved').onchange=e=>{if(e.target.value==='')return;const s=SAVED.find(b=>b.id===+e.target.value);f.forEach(([k])=>S.send.rcv[k]=s[k]);showApp('send2')};
+      r.querySelector('#go').onclick=()=>{const miss=f.filter(([k])=>!(S.send.rcv[k]||'').trim()).map(x=>x[1]);
+        if(miss.length){r.querySelector('#rErr').textContent=`Complete: ${miss.join(', ')}.`;return}showApp('review')};
+    }};
+  },
+  review(){
+    const c=calc(),a=ACCOUNTS.find(x=>x.id===S.send.from),f=RECEIVER_FIELDS[S.send.method],v=S.send.rcv;
+    return {html:`<div class="page-head"><button class="icon-btn" id="bk" aria-label="Back">${ic('back')}</button><h2>Review &amp; Confirm</h2></div>
+      ${stepper(5)}
+      <div class="block" style="max-width:560px">
+        <div class="big-amt" style="color:var(--teal-d)">USD ${fmt(c.usd)}</div>
+        <div class="center"><span class="rate">1 USD = 361.900 ZWD</span></div>
+        <p class="small muted" style="margin:8px 0 6px">From</p>
+        <div class="party"><span class="ti">${ic(accIc(a.id))}</span><div><b style="display:block;font-weight:500">${fullName()} · ${a.name}</b><span class="small muted">${a.mask}</span></div></div>
+        <div class="arrow">${ic('down')}</div>
+        <p class="small muted" style="margin:0 0 6px">To</p>
+        <div class="party"><span class="ti">${ic('user2')}</span><div><b style="display:block;font-weight:500">${esc(v.rname)}</b><span class="small muted">${METHODS.find(m=>m.id===S.send.method).name}</span></div></div>
+        <dl class="kv">${f.map(([k])=>`<dt>${LABELS[k]}</dt><dd>${esc(v[k])}</dd>`).join('')}</dl>
+        <div style="border-top:1.5px solid var(--border);margin:16px 0 4px"></div>
+        <div class="sum-row"><span class="muted">Send</span><span>ZWD ${fmt(c.z)}</span></div>
+        <div class="sum-row"><span class="muted">Charge</span><span>ZWD ${fmt(c.fee)}</span></div>
+        <div class="sum-row tot"><span>Total to Pay</span><span>ZWD ${fmt(c.total)}</span></div>
+        <button class="btn primary" id="go" style="margin-top:16px">Confirm</button>
+      </div>`,
+    bind(r){ r.querySelector('#bk').onclick=()=>showApp('send2'); r.querySelector('#go').onclick=()=>showApp(S.send.from==='card'?'cardAuth':'sendOtp') }};
+  },
+  sendOtp(){
+    const T=S.flow==='topup';
+    const o=otpView(T?completeTop:completeSend,()=>showApp(T?'topupReview':'review'));
+    return {html:`${T?stepperL(TOP_FLOWS.sav,3):stepper(6)}<div class="card" style="margin:0 auto">${o.html}</div>`, bind:r=>o.bind(r)};
+  },
+  cardAuth(){
+    const T=S.flow==='topup',a=ACCOUNTS.find(x=>x.id==='card'),c=T?{total:S.top.amt}:calc();
+    return {html:`${T?stepperL(TOP_FLOWS.card,3):stepper(6)}<div class="card" style="margin:0 auto">
+      <button class="back" id="bk">${ic('back')}Back</button>
+      <div class="center"><div class="badge-ic">${ic('pay')}</div>
+      <h2>Verify Card Payment</h2>
+      <p class="lead" style="margin-bottom:0">Enter the CVV on the back of your ${a.name} ending ${a.mask.slice(-5)} and your card PIN.</p>
+      <p class="small muted" style="margin:18px 0 -8px">CVV</p>${boxes('cvv',3,'password')}
+      <p class="small muted" style="margin:6px 0 -8px">Card PIN</p>${boxes('cpin',4,'password')}
+      <div class="err" id="cErr" style="margin-bottom:10px"></div>
+      <button class="btn primary" id="go" disabled>Pay ZWD ${fmt(c.total)}</button>
+      <p class="small muted" style="margin:10px 0 0">Demo: any CVV and card PIN except 0000</p></div></div>`,
+    bind(r){
+      r.querySelector('#bk').onclick=()=>showApp(T?'topupReview':'review');
+      const go=r.querySelector('#go');
+      const chk=()=>{r.querySelector('#cErr').textContent='';go.disabled=!(cv.val().length===3&&cp.val().length===4)};
+      const cv=bindCode(r.querySelector('#cvv'),chk), cp=bindCode(r.querySelector('#cpin'),chk);
+      r.querySelector('#cvv input').focus();
+      go.onclick=()=>{if(cp.val()==='0000'){r.querySelector('#cErr').textContent='Incorrect card PIN. Try again.';cp.clear();go.disabled=true;return}
+        go.textContent='Processing…';go.disabled=true;setTimeout(T?completeTop:completeSend,900)};
+    }};
+  },
+  success(){
+    const c=calc(),a=ACCOUNTS.find(x=>x.id===S.send.from),v=S.send.rcv;
+    return {html:`${stepper(7)}<div class="block center" style="max-width:520px;margin:0 auto">
+      <div class="success-ic">${ic('check')}</div>
+      <h2 style="margin:0">Success</h2>
+      <div class="big-amt" style="color:var(--teal-d)">USD ${fmt(c.usd)}</div>
+      <p class="muted" style="margin:0">Transaction Successful</p>
+      <div class="sum-row" style="margin:14px 0 8px"><span class="muted">Transaction ID</span><b>${S.send.id}</b></div>
+      <div style="text-align:left">
+        <div class="party"><span class="ti">${ic(accIc(a.id))}</span><div><b style="display:block;font-weight:500">${fullName()} · ${a.name}</b><span class="small muted">${a.mask}</span></div></div>
+        <div class="arrow">${ic('down')}</div>
+        <div class="party"><span class="ti">${ic('user2')}</span><div><b style="display:block;font-weight:500">${esc(v.rname)}</b><span class="small muted">${esc(v.acct||v.msisdn)}</span></div></div>
+      </div>
+      <div style="text-align:right;margin:10px 0 18px"><label class="toggle"><input type="checkbox" id="sv" ${S.send.save?'checked':''}>Save Receiver</label></div>
+      <button class="btn primary" id="ok">Ok</button>
+      <button class="btn ghost" id="share">${ic('share')}Share</button>
+    </div>`,
+    bind(r){
+      r.querySelector('#sv').onchange=e=>S.send.save=e.target.checked;
+      r.querySelector('#ok').onclick=()=>{if(S.send.save&&!benExists(S.send.method,v)){SAVED.unshift({id:benSeq++,method:S.send.method,nick:'',...v});toast('Receiver saved to beneficiaries')}showApp('home')};
+      r.querySelector('#share').onclick=async()=>{const t=`Swift Wave receipt\nUSD ${fmt(c.usd)} sent to ${v.rname}\nTransaction ID: ${S.send.id}`;
+        try{if(navigator.share){await navigator.share({text:t})}else{await navigator.clipboard.writeText(t);toast('Receipt copied')}}catch{toast('Receipt copied')}};
+    }};
+  },
+  history(){
+    S.hf=S.hf||'all';
+    return {html:`<div class="page-head"><button class="icon-btn" data-go="home" aria-label="Back">${ic('back')}</button><h2>Transaction History</h2>
+      <span style="flex:1"></span><span class="live"><i></i>Updating live</span></div>
+      <div style="max-width:820px">
+      <div class="sum-grid" id="histSum"></div>
+      <div class="block">
+        <div style="display:flex;gap:12px;flex-wrap:wrap;justify-content:space-between;align-items:center;margin-bottom:6px">
+          <div class="tabs">${[['all','All'],['send','Sent'],['topup','Top Up'],['received','Received']].map(([k,l])=>`<button class="tab ${S.hf===k?'on':''}" data-hf="${k}">${l}</button>`).join('')}</div>
+          <div class="input-wrap" style="flex:1;min-width:200px;max-width:280px">${ic('search')}<input class="input" id="hq" placeholder="Search name, number or reference" value="${esc(S.hq||'')}"></div>
+        </div>
+        <div id="histList"></div>
+      </div></div>`,
+    bind(r){
+      r.querySelectorAll('[data-hf]').forEach(b=>b.onclick=()=>{S.hf=b.dataset.hf;r.querySelectorAll('[data-hf]').forEach(x=>x.classList.toggle('on',x===b));renderHistList()});
+      r.querySelector('#hq').oninput=e=>{S.hq=e.target.value;renderHistList()};
+      renderHistList();
+    }};
+  },
+  topup(){
+    if(!S.top) resetTop();
+    const t=S.top;
+    return {html:`<div class="page-head"><button class="icon-btn" data-go="home" aria-label="Back">${ic('back')}</button><h2>Top Up</h2></div>
+      ${stepperL(topFlow(t.from),1)}
+      <div class="two"><div class="block" style="margin:0">
+        <div class="field"><label>Top up for</label><div class="opts">
+          <button class="opt ${t.who==='me'?'sel':''}" data-who="me"><span class="oi" style="background:var(--tint);color:var(--teal-d)">${ic('user')}</span><span class="ot"><b>My number</b><span>+263 ${esc(myNumber())}</span></span></button>
+          <button class="opt ${t.who==='other'?'sel':''}" data-who="other"><span class="oi" style="background:#E7F1FD;color:#1F7FE3">${ic('phone')}</span><span class="ot"><b>Another number</b><span>Family or friends</span></span></button>
+        </div></div>
+        <div class="field ${t.who==='me'?'hidden':''}"><label for="tn">Mobile Number</label><div class="phone-row"><span class="input" style="display:flex;align-items:center;gap:6px">${FLAG_ZW}+263</span>
+          <input class="input" id="tn" inputmode="tel" placeholder="7x xxx xxxx" value="${t.who==='other'?esc(t.num):''}"></div></div>
+        <div class="field"><label for="net">Network</label><select class="input" id="net">${NETWORKS.map(n=>`<option value="${n.id}" ${t.net===n.id?'selected':''}>${n.name}</option>`).join('')}</select></div>
+        <div class="field"><label>Top up type</label><div class="opts">
+          <button class="opt ${t.kind==='airtime'?'sel':''}" data-kind="airtime"><span class="oi" style="background:var(--tint);color:var(--teal-d)">${ic('phone')}</span><span class="ot"><b>Airtime</b><span>Call &amp; SMS credit</span></span></button>
+          <button class="opt ${t.kind==='data'?'sel':''}" data-kind="data"><span class="oi" style="background:#EEEFFE;color:#5B63E8">${ic('globe')}</span><span class="ot"><b>Data Bundle</b><span>Internet bundles</span></span></button>
+        </div></div>
+        ${t.kind==='airtime'?`<div class="field"><label for="ta">Amount</label><div class="amt-row"><input id="ta" inputmode="decimal" placeholder="Enter Amount" value="${t.amt||''}"><span class="cur">${FLAG_ZW}ZWD</span></div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px">${AIRTIME.map(v=>`<button class="btn outline sm" data-amt="${v}" style="${t.amt===v?'border-color:var(--teal);color:var(--teal-d)':''}">ZWD ${fmt(v)}</button>`).join('')}</div></div>`
+        :`<div class="field"><label>Bundle</label><div class="opts">${BUNDLES.map(b=>`<button class="opt ${t.bundle===b.id?'sel':''}" data-bundle="${b.id}"><span class="ot"><b>${b.name}</b><span>ZWD ${fmt(b.amt)}</span></span></button>`).join('')}</div></div>`}
+        <div class="field" style="margin:0"><label>Paying With</label><div class="opts">${ACCOUNTS.map(a=>`<button class="opt ${t.from===a.id?'sel':''}" data-tfrom="${a.id}">
+          <span class="oi" style="background:var(--tint);color:var(--teal-d)">${ic(accIc(a.id))}</span>
+          <span class="ot"><b>${a.name}</b><span>${a.mask}</span><span style="display:block;font-weight:600;color:var(--text)">${a.cur} ${fmt(a.bal)}</span></span></button>`).join('')}</div></div>
+      </div>
+      <div class="block sum" style="margin:0"><h3 style="margin:0 0 10px;font-size:16px">Summary</h3>
+        <div class="sum-row"><span class="muted">Mobile</span><span>+263 ${esc(t.num||'—')}</span></div>
+        <div class="sum-row"><span class="muted">Network</span><span>${NETWORKS.find(n=>n.id===t.net).name}</span></div>
+        <div class="sum-row"><span class="muted">Type</span><span>${t.kind==='data'?(t.bundle?BUNDLES.find(b=>b.id===t.bundle).name:'Data Bundle'):'Airtime'}</span></div>
+        <div class="sum-row"><span class="muted">Charge</span><span>ZWD 0.00</span></div>
+        <div class="sum-row tot"><span>Total to Pay</span><span id="tTot">ZWD ${fmt(t.amt)}</span></div>
+        <div class="err" id="tErr"></div>
+        <button class="btn primary" id="go" style="margin-top:14px">Next</button>
+      </div></div>`,
+    bind(r){
+      const t=S.top,re=()=>showApp('topup');
+      r.querySelectorAll('[data-who]').forEach(b=>b.onclick=()=>{t.who=b.dataset.who;t.num=t.who==='me'?myNumber():'';if(t.who==='me')t.net=detectNet(t.num)||t.net;re()});
+      const tn=r.querySelector('#tn'); tn.oninput=()=>{tn.value=tn.value.replace(/[^\d ]/g,'');t.num=tn.value.replace(/\D/g,'');const d=detectNet(t.num);if(d&&d!==t.net){t.net=d;r.querySelector('#net').value=d}validate()};
+      r.querySelector('#net').onchange=e=>{t.net=e.target.value;re()};
+      r.querySelectorAll('[data-kind]').forEach(b=>b.onclick=()=>{if(t.kind!==b.dataset.kind){t.kind=b.dataset.kind;t.amt=0;t.bundle=null}re()});
+      r.querySelectorAll('[data-amt]').forEach(b=>b.onclick=()=>{t.amt=+b.dataset.amt;re()});
+      r.querySelectorAll('[data-bundle]').forEach(b=>b.onclick=()=>{t.bundle=b.dataset.bundle;t.amt=BUNDLES.find(x=>x.id===t.bundle).amt;re()});
+      r.querySelectorAll('[data-tfrom]').forEach(b=>b.onclick=()=>{t.from=b.dataset.tfrom;re()});
+      const ta=r.querySelector('#ta'); if(ta)ta.oninput=()=>{ta.value=ta.value.replace(/[^\d.]/g,'');t.amt=parseFloat(ta.value)||0;r.querySelector('#tTot').textContent='ZWD '+fmt(t.amt);validate()};
+      const validate=()=>{const a=ACCOUNTS.find(x=>x.id===t.from);let m='';
+        if(t.kind==='airtime'&&t.amt&&(t.amt<100||t.amt>50000))m='Airtime must be between ZWD 100 and ZWD 50,000.';
+        if(a&&t.amt>a.bal)m=`Insufficient balance in ${a.name}.`;
+        r.querySelector('#tErr').textContent=m;
+        r.querySelector('#go').disabled=!!m||!(t.num.length>=7&&t.amt>0&&t.from)};
+      r.querySelector('#go').onclick=()=>showApp('topupReview'); validate();
+    }};
+  },
+  topupReview(){
+    const t=S.top,a=ACCOUNTS.find(x=>x.id===t.from),net=NETWORKS.find(n=>n.id===t.net);
+    return {html:`<div class="page-head"><button class="icon-btn" id="bk" aria-label="Back">${ic('back')}</button><h2>Review &amp; Confirm</h2></div>
+      ${stepperL(topFlow(t.from),2)}
+      <div class="block" style="max-width:560px">
+        <div class="big-amt" style="color:var(--teal-d)">ZWD ${fmt(t.amt)}</div>
+        <p class="center muted" style="margin:0 0 14px">${t.kind==='data'?BUNDLES.find(b=>b.id===t.bundle).name:'Airtime'} top up</p>
+        <div class="party"><span class="ti">${ic(accIc(a.id))}</span><div><b style="display:block;font-weight:500">${fullName()} · ${a.name}</b><span class="small muted">${a.mask}</span></div></div>
+        <div class="arrow">${ic('down')}</div>
+        <div class="party"><span class="ti">${ic('phone')}</span><div><b style="display:block;font-weight:500">+263 ${esc(t.num)}</b><span class="small muted">${net.name} · ${t.who==='me'?'My number':'Another number'}</span></div></div>
+        <div style="border-top:1.5px solid var(--border);margin:16px 0 4px"></div>
+        <div class="sum-row"><span class="muted">Amount</span><span>ZWD ${fmt(t.amt)}</span></div>
+        <div class="sum-row"><span class="muted">Charge</span><span>ZWD 0.00</span></div>
+        <div class="sum-row tot"><span>Total to Pay</span><span>ZWD ${fmt(t.amt)}</span></div>
+        <button class="btn primary" id="go" style="margin-top:16px">Confirm</button>
+      </div>`,
+    bind(r){ r.querySelector('#bk').onclick=()=>showApp('topup'); r.querySelector('#go').onclick=()=>showApp(S.top.from==='card'?'cardAuth':'sendOtp') }};
+  },
+  topupSuccess(){
+    const t=S.top,net=NETWORKS.find(n=>n.id===t.net);
+    return {html:`${stepperL(topFlow(t.from),4)}<div class="block center" style="max-width:520px;margin:0 auto">
+      <div class="success-ic">${ic('check')}</div><h2 style="margin:0">Success</h2>
+      <div class="big-amt" style="color:var(--teal-d)">ZWD ${fmt(t.amt)}</div>
+      <p class="muted" style="margin:0">${t.kind==='data'?BUNDLES.find(b=>b.id===t.bundle).name:'Airtime'} sent to ${net.name} +263 ${esc(t.num)}</p>
+      <div class="sum-row" style="margin:14px 0 18px"><span class="muted">Reference</span><b>${t.ref}</b></div>
+      <button class="btn primary" id="ok">Ok</button>
+      <button class="btn ghost" id="again">Top up again</button></div>`,
+    bind(r){ r.querySelector('#ok').onclick=()=>showApp('home'); r.querySelector('#again').onclick=()=>{resetTop();showApp('topup')} }};
+  },
+  notifications(){
+    return {html:`<div class="page-head"><button class="icon-btn" data-go="home" aria-label="Back">${ic('back')}</button><h2>Notifications</h2>
+      <span style="flex:1"></span><button class="btn outline sm" id="markAll">Mark all as read</button></div>
+      <div class="block" style="max-width:720px;padding:0;overflow:hidden">${S.notifs.length?S.notifs.map(nItem).join(''):'<div class="nempty">You\'re all caught up.</div>'}</div>`};
+  },
+  mystuff(){
+    const k=kycInfo();
+    const item=(go,i,t,sub,cnt)=>`<button class="mi" data-go="${go}"><span class="mic">${ic(i)}</span><span class="mt"><b>${t}</b><span>${sub}</span></span>${cnt!=null?`<span class="cnt">${cnt}</span>`:''}<span class="muted">${ic('chev')}</span></button>`;
+    return {html:`<div class="page-head"><h2>My Stuff</h2></div><div style="max-width:720px">
+      <button class="pcard" data-go="profile" style="width:100%;border:0;text-align:left;font:inherit"><span class="avatar">${initials(fullName())}</span>
+        <span style="flex:1;min-width:0"><b>${esc(fullName())}</b><span>+263 ${esc(myNumber())}</span><br><span class="kyc">${ic(k.cls==='green'?'checkc':'info')}${k.txt}</span></span><span>${ic('chev')}</span></button>
+      <p class="menu-h">Account</p>
+      <div class="menu">${item('profile','user','My Profile','Personal details, contact and address')}
+        ${item('beneficiaries','users','Beneficiaries','Saved receivers for Send Money',SAVED.length)}</div>
+      <p class="menu-h">Security &amp; settings</p>
+      <div class="menu">${item('security','lock','Security','PIN, password and sign-in')}
+        ${item('notifSettings','bell','Notifications','Choose what you hear about')}
+        ${item('prefs','sliders','Language & Display','Language and theme')}</div>
+      <p class="menu-h">Support</p>
+      <div class="menu">${item('help','help','Help & Support','FAQs, call or chat with us')}
+        ${item('about','info','About & Legal','Terms, privacy and app version')}</div>
+      <div class="menu"><button class="mi danger" id="lo"><span class="mic">${ic('logout')}</span><span class="mt"><b>Log out</b></span></button></div>
+    </div>`,
+    bind(r){r.querySelector('#lo').onclick=()=>confirmBox('Log out?','You\'ll need your mobile number and password to sign in again.','Log out',()=>{openPanel(false);toast('Logged out');showAuth('login')},true)}};
+  },
+  profile(){
+    const p=prof(),k=kycInfo(),T=REG_TYPES.find(t=>t.id===(S.reg||'citizen'));
+    const ro=(l,v)=>`<div class="field"><label>${l}</label><input class="input ro" value="${esc(tr(v||'—'))}" readonly></div>`;
+    const ed=(id,l,v,type='text')=>`<div class="field"><label for="${id}">${l}</label><input class="input" id="${id}" type="${type}" value="${esc(v)}"></div>`;
+    return {html:`${backHead('My Profile')}<div style="max-width:720px">
+      <div class="block"><div style="display:flex;align-items:center;gap:14px;margin-bottom:16px"><span class="avatar" style="width:56px;height:56px;font-size:20px">${initials(fullName())}</span>
+        <div><b style="font-size:17px;font-weight:600;display:block">${esc(fullName())}</b><span class="kyc ${k.cls}">${ic(k.cls==='green'?'checkc':'info')}${k.txt}</span></div></div>
+        <div class="grid2">${ro('First name',p.first)}${ro('Surname',p.last)}${ro('Registration type',T.name)}${ro('ID / document number',p.idno)}${ro('Date of birth',p.dob)}${ro('Mobile number','+263 '+myNumber())}</div>
+        <p class="hint" style="margin:-4px 0 0">To change these details, contact support with a supporting document.</p></div>
+      <div class="block"><h3 style="margin:0 0 14px;font-size:16px">Contact &amp; address</h3>
+        <div class="grid2">${ed('pe','Email',p.email,'email')}${ed('po','Occupation',p.occ)}</div>
+        ${ed('pa','Residential address',p.addr)}
+        <div class="grid2">${ed('pc','City / Town',p.city)}<div class="field"><label for="pp">Province</label><select class="input" id="pp"><option value="">Select</option>${PROVINCES.map(x=>`<option ${p.prov===x?'selected':''}>${x}</option>`).join('')}</select></div></div>
+        <div class="err" id="pErr"></div>
+        <button class="btn primary" id="save" style="max-width:220px">Save changes</button></div></div>`,
+    bind(r){r.querySelector('#save').onclick=()=>{const g=id=>r.querySelector(id).value.trim(),em=g('#pe');
+      if(em&&!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(em)){r.querySelector('#pErr').textContent='Enter a valid email address.';return}
+      if(!g('#pa')||!g('#pc')){r.querySelector('#pErr').textContent='Address and city are required.';return}
+      S.rd=S.rd||{};Object.assign(S.rd,{email:em,occ:g('#po'),addr:g('#pa'),city:g('#pc'),prov:g('#pp')});
+      notify('Profile updated','Your contact and address details were updated.','user',null,true);toast('Profile saved')}}};
+  },
+  beneficiaries(){
+    S.bf=S.bf||'all';
+    return {html:`${backHead('Beneficiaries','mystuff',`<button class="btn primary sm" data-go="benForm">${ic('plus')}Add beneficiary</button>`)}
+      <div style="max-width:760px"><div class="block">
+        <div style="display:flex;gap:12px;flex-wrap:wrap;justify-content:space-between;align-items:center;margin-bottom:14px">
+          <div class="tabs">${[['all','All'],...METHODS.map(m=>[m.id,m.name])].map(([k,l])=>`<button class="tab ${S.bf===k?'on':''}" data-bf="${k}">${l}</button>`).join('')}</div>
+          <div class="input-wrap" style="flex:1;min-width:200px;max-width:260px">${ic('search')}<input class="input" id="bq" placeholder="Search beneficiaries" value="${esc(S.bq||'')}"></div>
+        </div><div id="benList"></div></div></div>`,
+    bind(r){
+      const draw=()=>{const q=(S.bq||'').toLowerCase();
+        const list=SAVED.filter(b=>(S.bf==='all'||b.method===S.bf)&&(!q||[b.nick,b.rname,benSub(b)].join(' ').toLowerCase().includes(q))).sort((a,b)=>(b.fav?1:0)-(a.fav?1:0));
+        r.querySelector('#benList').innerHTML=list.length?list.map(b=>`<div class="ben"><span class="bav">${initials(b.rname)}</span>
+          <span class="bt"><b>${esc(b.nick||b.rname)}${b.fav?` <span style="color:#F5A524">${ic('star')}</span>`:''}</b>
+          <span><span class="mtag">${ic(METHODS.find(m=>m.id===b.method).ic)}${METHOD_NAME(b.method)}</span>${b.nick?esc(b.rname)+' · ':''}${esc(benSub(b))}</span></span>
+          <span class="ba"><button data-bsend="${b.id}" aria-label="Send money to ${esc(b.rname)}" title="Send money">${ic('send')}</button>
+          <button class="fav ${b.fav?'on':''}" data-bfav="${b.id}" aria-label="Favourite" title="Favourite">${ic('star')}</button>
+          <button data-bedit="${b.id}" aria-label="Edit" title="Edit">${ic('edit')}</button>
+          <button class="del" data-bdel="${b.id}" aria-label="Delete" title="Delete">${ic('trash')}</button></span></div>`).join('')
+          :`<div class="empty" style="padding:40px 10px"><div class="q">${ic('users')}</div><p class="muted" style="margin:0 0 14px">${q||S.bf!=='all'?'No beneficiaries match.':'No beneficiaries yet.'}</p><button class="btn primary sm" data-go="benForm">Add beneficiary</button></div>`};
+      r.querySelectorAll('[data-bf]').forEach(b=>b.onclick=()=>{S.bf=b.dataset.bf;r.querySelectorAll('[data-bf]').forEach(x=>x.classList.toggle('on',x===b));draw()});
+      r.querySelector('#bq').oninput=e=>{S.bq=e.target.value;draw()};
+      r.querySelector('#benList').onclick=e=>{const t=e.target.closest('button');if(!t)return;
+        const id=+(t.dataset.bsend||t.dataset.bfav||t.dataset.bedit||t.dataset.bdel),b=SAVED.find(x=>x.id===id);if(!b)return;
+        if(t.dataset.bsend){resetSend();S.send.method=b.method;RECEIVER_FIELDS[b.method].forEach(([k])=>S.send.rcv[k]=b[k]);S.send.save=false;showApp('sendType');toast(`Sending to ${b.nick||b.rname}`)}
+        if(t.dataset.bfav){b.fav=!b.fav;draw()}
+        if(t.dataset.bedit){S.benEdit=id;showApp('benForm')}
+        if(t.dataset.bdel)confirmBox('Delete beneficiary?',`${b.nick||b.rname} (${METHOD_NAME(b.method)}) will be removed from your saved receivers.`,'Delete',()=>{SAVED.splice(SAVED.indexOf(b),1);toast('Beneficiary deleted');showApp('beneficiaries')},true)};
+      draw();
+    }};
+  },
+  benForm(){
+    const b=S.benEdit?SAVED.find(x=>x.id===S.benEdit):null;
+    S.bd=S.bd&&S.bd._for===S.benEdit?S.bd:{_for:S.benEdit,...(b||{method:'bank'})};
+    const d=S.bd,f=RECEIVER_FIELDS[d.method];
+    return {html:`${backHead(b?'Edit Beneficiary':'Add Beneficiary','beneficiaries')}
+      <div class="block" style="max-width:560px">
+        <div class="field"><label>Receiving method</label><div class="opts">${METHODS.map(m=>`<button class="opt ${d.method===m.id?'sel':''}" data-bm="${m.id}" ${b?'disabled style="opacity:.6"':''}><span class="oi" style="background:var(--tint);color:var(--teal-d)">${ic(m.ic)}</span><span class="ot"><b>${m.name}</b></span></button>`).join('')}</div>
+          ${b?'<div class="hint">To change the method, add a new beneficiary.</div>':''}</div>
+        <div class="field"><label for="b_nick">Nickname (optional)</label><input class="input" id="b_nick" data-b="nick" placeholder="e.g. Mum, Landlord" value="${esc(d.nick||'')}"></div>
+        ${f.map(([k,l,o])=>`<div class="field"><label for="b_${k}">${l}</label>${Array.isArray(o)
+          ?`<select class="input" id="b_${k}" data-b="${k}"><option value="">Select</option>${o.map(x=>`<option ${d[k]===x?'selected':''}>${x}</option>`).join('')}</select>`
+          :`<input class="input" id="b_${k}" data-b="${k}" placeholder="${o}" value="${esc(d[k]||'')}">`}</div>`).join('')}
+        <label class="chk" style="margin:0 0 16px"><input type="checkbox" id="b_fav" ${d.fav?'checked':''}>Mark as favourite</label>
+        <div class="err" id="bErr" style="margin-bottom:10px"></div>
+        <button class="btn primary" id="bSave">${b?'Save changes':'Add beneficiary'}</button>
+        ${b?'<button class="btn ghost" id="bDel" style="color:var(--danger)">Delete beneficiary</button>':''}
+      </div>`,
+    bind(r){
+      r.querySelectorAll('[data-bm]').forEach(x=>x.onclick=()=>{d.method=x.dataset.bm;showApp('benForm')});
+      r.querySelectorAll('[data-b]').forEach(e=>e.oninput=e.onchange=()=>{d[e.dataset.b]=e.value.trim()});
+      r.querySelector('#b_fav').onchange=e=>d.fav=e.target.checked;
+      const leave=()=>{S.benEdit=null;S.bd=null;showApp('beneficiaries')};
+      r.querySelector('[data-go="beneficiaries"]').onclick=e=>{e.stopPropagation();leave()};
+      r.querySelector('#bSave').onclick=()=>{const err=r.querySelector('#bErr');
+        const miss=f.filter(([k])=>!(d[k]||'').trim()).map(x=>x[1]);
+        if(miss.length){err.textContent=`Complete: ${miss.join(', ')}.`;return}
+        if(d.msisdn&&d.msisdn.replace(/\D/g,'').length<9){err.textContent='Enter a valid mobile number.';return}
+        if(d.acct&&d.acct.replace(/\D/g,'').length<6){err.textContent='Account number looks too short.';return}
+        const clean={method:d.method,nick:d.nick||'',fav:!!d.fav};f.forEach(([k])=>clean[k]=d[k]);
+        if(b){Object.keys(b).forEach(k=>{if(k!=='id')delete b[k]});Object.assign(b,clean);toast('Beneficiary updated')}
+        else{if(benExists(d.method,clean)){err.textContent='This beneficiary is already saved.';return}SAVED.unshift({id:benSeq++,...clean});toast('Beneficiary added')}
+        leave()};
+      const del=r.querySelector('#bDel');
+      if(del)del.onclick=()=>confirmBox('Delete beneficiary?',`${b.nick||b.rname} will be removed from your saved receivers.`,'Delete',()=>{SAVED.splice(SAVED.indexOf(b),1);toast('Beneficiary deleted');leave()},true);
+    }};
+  },
+  security(){
+    return {html:`${backHead('Security')}<div style="max-width:620px">
+      <div class="block"><h3 style="margin:0 0 4px;font-size:16px">Change PIN</h3><p class="muted small" style="margin:0 0 4px">Your 6-digit PIN confirms payments.</p>
+        <p class="small muted" style="margin:14px 0 -8px">Current PIN</p>${boxes('s0',6,'password')}
+        <p class="small muted" style="margin:6px 0 -8px">New PIN</p>${boxes('s1',6,'password')}
+        <p class="small muted" style="margin:6px 0 -8px">Confirm new PIN</p>${boxes('s2',6,'password')}
+        <div class="err" id="sErr1" style="margin-bottom:10px"></div><button class="btn primary" id="sPin" style="max-width:220px">Change PIN</button></div>
+      <div class="block"><h3 style="margin:0 0 14px;font-size:16px">Change password</h3>
+        <div class="field"><label for="cp0">Current password</label><input class="input" id="cp0" type="password" autocomplete="current-password"></div>
+        <div class="field"><label for="cp1">New password</label><input class="input" id="cp1" type="password" autocomplete="new-password"><div class="hint">At least 8 characters with a letter and a number</div></div>
+        <div class="field"><label for="cp2">Confirm new password</label><input class="input" id="cp2" type="password" autocomplete="new-password"></div>
+        <div class="err" id="sErr2" style="margin-bottom:10px"></div><button class="btn primary" id="sPw" style="max-width:220px">Change password</button></div>
+      <p class="menu-h">Sign-in</p>
+      <div class="menu">${sw('t_otp',S.sec.loginOtp,'OTP on new devices','Ask for a code when signing in on a new device')}
+        ${sw('t_hide',S.hide,'Hide balances','Show •••• instead of amounts on Home')}</div>
+      <p class="menu-h">Active sessions</p>
+      <div class="menu"><div class="mi"><span class="mic">${ic('globe')}</span><span class="mt"><b>This browser</b><span>Swift Wave Web · active now</span></span><span class="kyc green">Current</span></div>
+        <div class="mi"><span class="mic">${ic('phone')}</span><span class="mt"><b>Android phone</b><span>Swift Wave app · last active yesterday</span></span></div>
+        <button class="mi danger" id="sOut"><span class="mic">${ic('logout')}</span><span class="mt"><b>Sign out all other devices</b></span></button></div>
+    </div>`,
+    bind(r){
+      const a=bindCode(r.querySelector('#s0'),()=>{}),b=bindCode(r.querySelector('#s1'),()=>{}),c=bindCode(r.querySelector('#s2'),()=>{});
+      r.querySelector('#sPin').onclick=()=>{const e=r.querySelector('#sErr1');e.textContent='';
+        if(a.val().length<6||b.val().length<6||c.val().length<6){e.textContent='Enter all three PINs.';return}
+        if(b.val()==='000000'){e.textContent="PIN can't be 000000.";return}
+        if(/^(\d)\1{5}$/.test(b.val())||'0123456789'.includes(b.val())){e.textContent='Avoid repeated or sequential digits.';return}
+        if(S.pin&&a.val()!==S.pin){e.textContent='Current PIN is incorrect.';a.clear();return}
+        if(b.val()===a.val()){e.textContent='New PIN must be different from your current PIN.';return}
+        if(b.val()!==c.val()){e.textContent="New PINs don't match.";c.clear();return}
+        S.pin=b.val();a.clear();b.clear();c.clear();notify('PIN changed','Your transaction PIN was changed. If this wasn\'t you, contact support.','shield')};
+      r.querySelector('#sPw').onclick=()=>{const e=r.querySelector('#sErr2'),g=id=>r.querySelector(id).value;e.textContent='';
+        if(!g('#cp0')){e.textContent='Enter your current password.';return}
+        if(g('#cp1').length<8||!/[A-Za-z]/.test(g('#cp1'))||!/\d/.test(g('#cp1'))){e.textContent='Use at least 8 characters with a letter and a number.';return}
+        if(g('#cp1')!==g('#cp2')){e.textContent="Passwords don't match.";return}
+        ['#cp0','#cp1','#cp2'].forEach(id=>r.querySelector(id).value='');notify('Password changed','Your sign-in password was changed.','shield')};
+      r.querySelector('#t_otp').onchange=e=>{S.sec.loginOtp=e.target.checked;toast(e.target.checked?'OTP on new devices turned on':'OTP on new devices turned off')};
+      r.querySelector('#t_hide').onchange=e=>{S.hide=e.target.checked;toast(S.hide?'Balances hidden':'Balances shown')};
+      r.querySelector('#sOut').onclick=()=>confirmBox('Sign out other devices?','Every device except this browser will be signed out.','Sign out',()=>{toast('Other devices signed out');r.querySelectorAll('.mi')[3].remove()},true);
+    }};
+  },
+  notifSettings(){
+    return {html:`${backHead('Notifications')}<div style="max-width:620px"><div class="menu">
+      ${sw('n_tx',S.nset.tx,'Transactions','Money sent, received and top ups')}
+      ${sw('n_sec',S.nset.security,'Security alerts','Sign-ins, PIN and password changes')}
+      ${sw('n_promo',S.nset.promo,'Offers & rewards','Refer & Earn and promotions')}</div>
+      <p class="hint" style="margin-left:4px">Turned-off categories won't appear in your notification bell.</p></div>`,
+    bind(r){[['n_tx','tx'],['n_sec','security'],['n_promo','promo']].forEach(([id,k])=>r.querySelector('#'+id).onchange=e=>{S.nset[k]=e.target.checked;toast('Notification settings saved')})}};
+  },
+  prefs(){
+    const opt=(name,cur,list)=>list.map(x=>`<button class="opt ${cur===x[0]?'sel':''}" data-${name}="${x[0]}" style="margin:0"><span class="ot"><b>${x[1]}</b>${x[2]?`<span>${x[2]}</span>`:''}</span>${cur===x[0]?`<span style="color:var(--teal-d)">${ic('check')}</span>`:''}</button>`).join('');
+    return {html:`${backHead('Language & Display')}<div style="max-width:620px">
+      <div class="block"><h3 style="margin:0 0 12px;font-size:16px">Language</h3><div class="opts">${opt('lang',S.lang,[['en','English'],['fr','Français']])}</div></div>
+      <div class="block"><h3 style="margin:0 0 12px;font-size:16px">Theme</h3><div class="opts">${opt('theme',S.theme,[['system','System','Match your device'],['light','Light'],['dark','Dark']])}</div></div></div>`,
+    bind(r){
+      r.querySelectorAll('[data-lang]').forEach(b=>b.onclick=()=>{setLang(b.dataset.lang);showApp('prefs');toast(S.lang==='fr'?'Language set to French':'Language set to English')});
+      r.querySelectorAll('[data-theme]').forEach(b=>b.onclick=()=>{S.theme=b.dataset.theme;
+        if(S.theme==='system')document.documentElement.removeAttribute('data-theme');else document.documentElement.dataset.theme=S.theme;showApp('prefs')});
+    }};
+  },
+  help(){
+    const faq=[['How long does a transfer take?','Transfers to Swift Wave and mobile money wallets are instant. Bank transfers usually arrive the same business day.'],
+      ['What are the transfer fees?','The fee for each receiving method is shown before you confirm. It is ZWD 5 in this prototype.'],
+      ['I forgot my PIN. What do I do?','Go to My Stuff → Security, or contact support to reset it after verifying your identity.'],
+      ['How do I add a beneficiary?','Go to My Stuff → Beneficiaries → Add beneficiary, or tick "Save Receiver" after a transfer.'],
+      ['Why is my account pending?','Immigrant accounts stay on lower limits until your residency or refugee status is confirmed.']];
+    return {html:`${backHead('Help & Support')}<div style="max-width:720px">
+      <div class="menu"><button class="mi" data-c="call"><span class="mic">${ic('phone')}</span><span class="mt"><b>Call us</b><span>+263 242 000 000 · 24/7</span></span></button>
+        <button class="mi" data-c="mail"><span class="mic">${ic('mail')}</span><span class="mt"><b>Email</b><span>support@swiftwave.app</span></span></button>
+        <button class="mi" data-c="chat"><span class="mic">${ic('chat')}</span><span class="mt"><b>Live chat</b><span>Chat with our assistant now</span></span></button></div>
+      <p class="menu-h">Frequently asked questions</p>
+      <div class="menu">${faq.map(([q,a])=>`<details class="faq"><summary>${q}</summary><p>${a}</p></details>`).join('')}</div></div>`,
+    bind(r){r.querySelectorAll('[data-c]').forEach(b=>b.onclick=()=>{if(b.dataset.c==='chat'){showApp('chat');return}toast(b.dataset.c==='call'?'Calling support…':'Opening your email app…')})}};
+  },
+  chat(){
+    if(!S.chat)S.chat=[{role:'assistant',content:CHAT_HELLO()}];
+    S.chat=S.chat.filter(m=>m.role!=='sys');
+    return {html:`${backHead('Live chat','help','<span class="live" id="chatStatus"><i></i>Connecting…</span>')}
+      <div class="block" style="max-width:720px">
+        <div class="chat-log" id="chatLog" aria-live="polite"></div>
+        <div class="chips-row" id="chips">${CHAT_CHIPS().map(c=>`<button data-chip="${esc(c)}">${esc(c)}</button>`).join('')}</div>
+        <div class="chat-in"><textarea class="input" id="chatIn" rows="1" placeholder="Type your message"></textarea>
+          <button class="btn primary sm" id="chatSend" style="padding:0 18px">${ic('send')}<span>Send</span></button>
+          <button class="btn outline sm hidden" id="chatStop">Stop</button></div>
+        <p class="hint" style="margin-top:10px">${ic('shield')} Never share your PIN, OTP or password in chat. Our assistant will never ask for them.</p>
+      </div>`,
+    bind(r){chatBind(r)}};
+  },
+  about(){
+    return {html:`${backHead('About & Legal')}<div style="max-width:620px">
+      <div class="block center"><span class="logo" data-logo></span><p class="muted" style="margin:8px 0 0">Version 1.0.0 (prototype)</p></div>
+      <div class="menu">${['Terms & Conditions','Privacy Policy','Fees & Charges','Licences'].map(t=>`<button class="mi" data-doc="${t}"><span class="mic">${ic('info')}</span><span class="mt"><b>${t}</b></span><span class="muted">${ic('chev')}</span></button>`).join('')}</div></div>`,
+    bind(r){r.querySelectorAll('[data-doc]').forEach(b=>b.onclick=()=>toast(`${b.dataset.doc} opens here`))}};
+  },
+  placeholder(name){
+    const map={mystuff:['My Stuff','user'],pay:['Pay','pay'],topup:['Top Up','topup'],addmoney:['Add Money','plus'],services:['All Services','route']};
+    const [t,i]=map[name]||['Coming soon','route'];
+    return {html:`<div class="page-head"><button class="icon-btn" data-go="home" aria-label="Back">${ic('back')}</button><h2>${t}</h2></div>
+      <div class="block empty"><div class="q">${ic(i)}</div><h3 style="margin:0 0 6px">${t} isn't in this mock yet</h3>
+      <p class="muted" style="margin:0 0 18px">The catalogue covers Login, Signup, Send Money and Top Up. Start a transfer to walk the full flow.</p>
+      <button class="btn primary sm" data-go="send">Send Money</button></div>`};
+  }
+};
+
+/* ================= Demo journeys ================= */
+$('#demoBtn').onclick=()=>$('#demoMenu').classList.toggle('hidden');
+document.querySelectorAll('[data-demo]').forEach(b=>b.onclick=()=>{
+  $('#demoMenu').classList.add('hidden'); const d=b.dataset.demo;
+  if(d==='login') showAuth('login');
+  else if(d==='send'){ resetSend(); enterApp(); showApp('sendMethod'); }
+  else { S.reg=d; S.docs={}; S.rd={}; showAuth('welcome'); toast(`Pick “${REG_TYPES.find(t=>t.id===d).name}” after OTP`); }
+});
+
+hydrate(); S.lang='en'; renderLangBtn();
+document.getElementById('langBtn').onclick=()=>setLang(S.lang==='fr'?'en':'fr');
+i18nObs.observe(document.body,{childList:true,subtree:true,characterData:true});
+showAuth('welcome');
+</script>
+</body>
+</html>
