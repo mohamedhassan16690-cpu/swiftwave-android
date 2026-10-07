@@ -57,6 +57,10 @@ public class MainActivity extends AppCompatActivity {
         s.setDomStorageEnabled(true);
         s.setMediaPlaybackRequiresUserGesture(false);
         s.setAllowFileAccess(false);
+        s.setTextZoom(100);                       // ignore system font scaling so the layout fits
+        s.setUseWideViewPort(true);
+        s.setLoadWithOverviewMode(true);
+        s.setUserAgentString(s.getUserAgentString() + " SwiftWaveApp");   // tells the page to use the phone layout
 
         web.setWebViewClient(new WebViewClient() {
             @Override
@@ -90,7 +94,14 @@ public class MainActivity extends AppCompatActivity {
         });
 
         if (savedInstanceState != null) web.restoreState(savedInstanceState);
-        else web.loadUrl("https://appassets.androidplatform.net/assets/index.html");
+        else web.loadUrl("https://appassets.androidplatform.net/assets/index.html?app=android");
+    }
+
+    @Override
+    public void onBackPressed() {
+        // Android back button: go back inside the app instead of closing it
+        web.evaluateJavascript("(function(){var b=document.querySelector('#appContent .page-head .icon-btn,#authCard .back');if(b&&b.offsetParent){b.click();return 'y'}return 'n'})()",
+            v -> { if (v == null || !v.contains("y")) MainActivity.super.onBackPressed(); });
     }
 
     @Override
